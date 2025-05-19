@@ -1,0 +1,483 @@
+\documentclass[11pt,a4paper]{article}
+
+% packages
+% \usepackage[fleqn]{amsmath}
+\usepackage{mathtools}
+% \usepackage{empheq}
+\usepackage[utf8]{inputenc}
+% \usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{fullpage} 
+\usepackage{tabularx}
+% \usepackage{amssymb,amstext,amsmath}
+\usepackage{amssymb,amstext}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{algorithmic}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{url}
+\usepackage[bookmarks,unicode=true,pdftex,a4paper]{hyperref}
+\usepackage[round]{natbib}
+\usepackage[usenames,dvipsnames]{color, xcolor}
+\headsep1cm
+
+% macros
+\input{macros}
+
+% header and footer
+\lhead{Advanced Methods in Text Analytics, FSS2025}
+\chead{}
+\rhead{\thepage\ }
+\cfoot{}
+\pagestyle{fancy}
+
+\title{Advanced Methods in Text Analytics \\ 
+Exercise 2: Deep Learning Basics and Word Embeddings \\ 
+\textbf{Solutions}}
+\author{Daniel Ruffinelli}
+\date{FSS 2025}
+
+\begin{document}
+\maketitle
+
+\section{Fully-Connected Neural Networks}
+
+\begin{enumerate}[label=(\alph*)]
+    \item As many as we need, so $n$ input units, $m$ output units, where $n$ is
+          not necessarily equal to $m$.
+    \item Nodes hold values that are computed based on other nodes and some
+          edges, whereas edges hold parameters of the function represented by
+          the network.
+    \item Generally, the input of the operation computed by each node is the
+          nodes from the previous layer
+          \emph{that are connected to it by an edge.}
+          Let's call these \emph{input} nodes.
+          The general operation is a linear combination between the value in the
+          input nodes and the corresponding weight vector $\vw_i$ made up of the
+          values on the edges connecting the input vectors.
+          Then, an \emph{activation} function $f$ is applied to the output of
+          this linear combination.
+          $f$ may or may not be a linear function.
+          Concretely, let $h_i^{(k)}$ be the (output) value of the $i$-th unit
+          in the $k$-th hidden layer in the network.
+          We have:
+          \begin{equation*}
+              h^{(k)}_i = f\left(\sum_{j=1}^{L^{k-1}}{h_j^{(k-1)} w_{i,j}^{(k)}}\right),
+          \end{equation*}
+          where $L^{k-1}$ is the size of the $(k-1)$-th layer and
+          $w_{i,j}^{(k)}$ is the $j$-th component of $\vw_i$.
+          Note that we can write this more compactly in vectorized form:
+          \begin{equation*}
+              h^{(k)}_i = f(\vh_{(k-1)}^\top\vw_k),
+          \end{equation*}
+          where both $\vh,\vw$ are column vectors, $\vh_{(k-1)}$ is the vector
+          with values in the $(k-1)$-th layer, and $f$ is applied element-wise.
+    \item The activation function. For example, ReLU, \emph{tanh}, the
+          logistic function.
+    \item $\mH_1=f(\mX\mW^T)\in\bb{R}^{N\times p}$ where
+          $\mW\in\bb{R}^{p\times d}$ is the matrix constructed by stacking the
+          weight vectors of each hidden unit in the first layer as rows, and $f$
+          is an activation function that is applied element-wise.
+\end{enumerate}
+
+\section{Backpropagation}
+\begin{enumerate}[label=(\alph*)]
+    \item $\frac{\partial}{\partial\vw}L$ where $L$ is our loss function and
+          $\vw$ the model parameters we want to adjust during learning.
+    \item We use standard derivation rules followed by some rewriting to obtain
+          the desired result.
+          \begin{align*}
+              \sigma(x)' & = \frac{d\sigma(x)}{d(x)}                                      \\
+                         & = \frac{d(\frac{1}{1+e^{-x}})}{dx}                             \\
+                         & = -\frac{1}{(1+e^{-x})^2}\cdot \frac{d(1+e^{-x})}{dx}          \\
+                         & = -\frac{1}{(1+e^{-x})^2}\cdot (e^{-x}) \cdot \frac{d(-x)}{dx} \\
+                         & = \frac{1}{(1+e^{-x})^2}\cdot (e^{-x})                         \\
+                         & = \frac{e^{-x}}{(1+e^{-x})^2}                                  \\
+                         & = \frac{1+e^{-x}}{(1+e^{-x})^2} - \frac{1}{(1+e^{-x})^2}       \\
+                         & = \frac{1}{(1+e^{-x})} - \frac{1}{(1+e^{-x})^2}                \\
+                         & = \sigma(x)-\sigma(x)^2                                        \\
+                         & = \sigma(x)\cdot (1-\sigma(x))
+          \end{align*}
+    \item In our setting, the network produces two numbers $y_1,y_2\in [0,1]$,
+          each corresponding to the probability of one class.
+          The given labels match this setting, since they are given by a pair of
+          binary numbers. E.g.\ label $[0,1]$ means the example corresponds to
+          the 2nd class, not the first.
+          Using squared error loss, we want the model to match its outputs to
+          the given labels during training, so for label $[0,1]$, the model
+          should match $y_1$ to 0 and $y_2$ to 1.
+          This is achieved with the loss we were given:
+          \begin{align*}
+              L & = -\frac{1}{2}\frac{1}{N}\sum_{e=1}^{N} \sum_{l=1}^{2} (t_{e,l}-y_{e,l})^2.
+          \end{align*}
+          where $N$ is the number of training examples (which we will keep as
+          $N$ for clarity during derivations).
+          Also, we add the $1/2$ factor to simplify gradient computations.
+          This is commonly done because is does not affect optimization as the
+          results are proportional to the exact results. \\
+
+          \begin{enumerate}[label=(\roman*)]
+              \item Let $h_j$ be the value of hidden unit $j$, and
+                    $w_{i,j}^{(k)}$ the weight from input feature $i$ in layer
+                    $k-1$ to neuron $j$ in layer $k$.
+                    Our network architecture tells us that
+                    \begin{align*}
+                        y_1 & = \sigma(w^{(2)}_{1,1}\cdot h_1 + w^{(2)}_{2,1}\cdot h_2)  \\
+                        y_2 & = \sigma(w^{(2)}_{1,2}\cdot h_1 + w^{(2)}_{2,2}\cdot h_2).
+                    \end{align*}
+                    We derive the required gradient w.r.t. $w_{1,2}^{(2)}$ for
+                    the update rule as follows:
+                    \begin{align*}
+                        \frac{\partial L}{\partial w_{1,2}^{(2)}} & = - \frac{1}{2}\frac{1}{N}\sum_{e=1}^N \sum_{l=1}^2 \frac{\partial}{\partial w_{1,2}^{(2)}} \left(t_{e,l}-y_{e,l}\right)^2                                                                                                                                                     \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} \left( (-1)(t_{e,1}-y_{e,1})\cdot \frac{\partial y_{e,1}}{\partial w_{1,2}^{(2)}} + (t_{e,2}-y_{e,2}) \cdot \frac{\partial y_{e,2}}{\partial w_{1,2}^{(2)}}  \right) &  & \text{($\frac{\partial y_{e,1}}{\partial w_{1,2}^{(2)}}$ evaluates to 0)} \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} (t_{e,2}-y_{e,2})\cdot\frac{\partial y_{e,2}}{\partial w_{1,2}^{(2)}}                                                                                            &  & \text{(use gradient from (b))}                                            \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} (t_{e,2}-y_{e,2})\cdot y_{e,2}\cdot\left(1-y_{e,2}\right) \cdot \frac{\partial (w^{(2)}_{1,2}\cdot h_1 + w^{(2)}_{2,2}\cdot h_2)}{\partial w_{1,2}^{(2)}}        &  & \text{(chain rule)}                                                       \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} (t_{e,2}-y_{e,2})\cdot y_{e,2}\cdot\left(1-y_{e,2}\right) \cdot h_1                                                                                                                                                                             \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} \delta_{e,2} \cdot h_1,
+                    \end{align*}
+                    where $\delta_{e,2} = (t_{e,2}-y_{e,2})\cdot y_{e,2}\cdot\left(1-y_{e,2}\right).$
+                    Similarly, our network architecture tells us that:
+                    \begin{align*}
+                        h_1 & = \sigma(w^{(1)}_{1,1}\cdot x_1 + w^{(1)}_{2,1}\cdot x_2 + w^{(1)}_{3,1}\cdot x_3)  \\
+                        h_2 & = \sigma(w^{(1)}_{1,2}\cdot x_1 + w^{(1)}_{2,2}\cdot x_2 + w^{(1)}_{3,2}\cdot x_3).
+                    \end{align*}
+                    Then, we obtain our gradient w.r.t. $w_{2,2}^{(1)}$ as follows:
+                    \begin{align*}
+                        \frac{\partial L}{\partial w_{2,2}^{(1)}} & = - \frac{1}{2N} \sum_{e=1}^N \sum_{l=2}^2 \frac{\partial}{\partial w_{2,2}^{(1)}} \left(t_{e,l}-y_{e,l}\right)^2                                                                                                                                                                                                                      \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} \left( (t_{e,1}-y_{e,1})\cdot \frac{\partial y_{e,1}}{\partial w_{2,2}^{(1)}} + (t_{e,2}-y_{e,2}) \cdot \frac{\partial y_{e,2}}{\partial w_{2,2}^{(1)}}  \right)                                                                                                                                        \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} \left( \delta_{e,1}\cdot\frac{\partial(w^{(2)}_{1,1}\cdot h_1 + w^{(2)}_{2,1}\cdot h_2)}{\partial w_{2,2}^{(1)}} + \delta_{e,2}\cdot\frac{\partial(w^{(2)}_{1,2}\cdot h_1 + w^{(2)}_{2,2}\cdot h_2)}{\partial w_{2,2}^{(1)}}  \right)                                                                   \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} \left( \delta_{e,1}\cdot\frac{\partial w^{(2)}_{2,1}\cdot h_2}{\partial w_{2,2}^{(1)}} + \delta_{e,2}\cdot\frac{\partial w^{(2)}_{2,2}\cdot h_2}{\partial w_{2,2}^{(1)}}  \right)                                                     &  & \text{($\frac{\partial h_{1}}{\partial w_{2,2}^{(1)}} = 0$)} \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} \left( \delta_{e,1}\cdot w^{(2)}_{2,1} \cdot h_2\cdot(1 - h_2)\cdot x_2 + \delta_{e,2}\cdot w^{(2)}_{2,2}\cdot h_2\cdot(1 - h_2)\cdot x_2  \right)                                                                                                                                                      \\
+                                                                  & = - \frac{1}{N} \sum_{e=1}^{N} \cdot h_2\cdot(1 - h_2)\cdot x_2 \sum_{l=1}^{2} \delta_{e,l}\cdot w^{(2)}_{2,l}.                                                                                                                                                                                                                         \\
+                    \end{align*}
+                    We can now write our update rules for each of the weights:
+                    \begin{align*}
+                        w_{1,2}^{(2)} & \coloneqq w_{1,2}^{(2)} + \frac{1}{N} \sum_{e=1}^{N} (t_{e,2}-y_{e,2})\cdot y_{e,2}\cdot\left(1-y_{e,2}\right) \cdot h_1             \\
+                        w_{2,2}^{(1)} & \coloneqq w_{2,2}^{(1)} + \frac{1}{N} \sum_{e=1}^{N} \cdot h_2\cdot(1 - h_2)\cdot x_2 \sum_{l=1}^{2} \delta_{e,l}\cdot w^{(2)}_{2,l}
+                    \end{align*}
+              \item We compute our forward pass with $w^{(i)}_{j,k} = 1$ for all
+                    possible values of $i,j,k$ and the two given training 
+                    examples: \\
+                    \vspace{10pt} \\
+                    $\vx = \begin{pmatrix}
+                            -1 \\
+                            0  \\
+                            2
+                        \end{pmatrix}, \vh = \begin{pmatrix}
+                            0.73 \\
+                            0.73
+                        \end{pmatrix}, \vy = \begin{pmatrix}
+                            0.81 \\
+                            0.81
+                        \end{pmatrix}$ \qquad {\color{red} \text{Example 1}}\\
+                    \vspace{10pt} \\
+                    $\vx = \begin{pmatrix}
+                            2 \\
+                            1 \\
+                            1
+                        \end{pmatrix}, \vh = \begin{pmatrix}
+                            0.98 \\
+                            0.98
+                        \end{pmatrix}, \vy = \begin{pmatrix}
+                            0.88 \\
+                            0.88
+                        \end{pmatrix}$ \qquad {\color{blue} \text{Example 2} }\\
+                    \vspace{10pt} \\
+                    And finally, we compute our updates:
+                    \begin{align*}
+                        w_{1,2}^{(2)} & \coloneqq 1+ \frac{1}{2} ({\color{red} (1-0.81)\cdot 0.81 \cdot (1-0.81) \cdot 0.73} + { \color{blue}(0-0.88) \cdot 0.88 \cdot (1-0.88) \cdot 0.98}) \\
+                                      & \coloneqq 0.965                                                                                                                                      \\
+                        w_{2,2}^{(1)} & \coloneqq 1+ \frac{1}{2} ({\color{red}0} + {\color{blue}1\cdot (1-0.98)\cdot 0.98 \cdot ((1-0.88)\cdot 0.88 \cdot (1-0.98) \cdot 1}                  \\
+                                      & \qquad\qquad\qquad\qquad\qquad\qquad\qquad\quad{\color{blue}+(0-0.88)\cdot0.88\cdot (1-0.98)\cdot 1)})                                               \\
+                                      & \coloneqq 0.99987.
+                    \end{align*}
+          \end{enumerate}
+\end{enumerate}
+
+
+\section{Skip-Gram Basics}
+
+\begin{enumerate}[label=(\alph*)]
+    \item It's multi-class classification where the number of classes is the
+          number of words in a given vocabulary $V$.
+          We can describe the task with the expression $p(c_j|w_i)$.
+          In such a setting, it's common to obtain probabilities using the
+          softmax function.
+          Formally, let $l_{w_i,c_j}$ be the logit score produced by a
+          classifier trained for this task given center word $w_i$ and context
+          word $c_j$.
+          We then have:
+          \begin{align*}
+              p(c_j|w_i) = \frac{\text{exp}{(l_{w_i,c_j}})}{\sum_{k\in V}\text{exp}(l_{w_i,c_k})},
+          \end{align*}
+          where $w_i$ is a word in position $i$ and $c_j$ is a word in a given
+          context of size L, e.g.\ for L = 2, we have
+          $j\in\{i-2, i-1,i+1,i+2\}$.
+    \item The sliding window moves through the sentence to create the following
+          context windows:
+          %   \begin{enumerate}[label=(\roman*)]
+          \begin{enumerate}[label=(\arabic*)]
+              \item \colorbox{green!30}{The} \colorbox{yellow!30}{quick}  \colorbox{yellow!30}{brown} fox jumped over the lazy dog.
+              \item \colorbox{yellow!30}{The} \colorbox{green!30}{quick} \colorbox{yellow!30}{brown} \colorbox{yellow!30}{fox} jumped over the lazy dog.
+              \item \colorbox{yellow!30}{The} \colorbox{yellow!30}{quick} \colorbox{green!30}{brown} \colorbox{yellow!30}{fox} \colorbox{yellow!30}{jumped} over the lazy dog.
+              \item The \colorbox{yellow!30}{quick} \colorbox{yellow!30}{brown} \colorbox{green!30}{fox} \colorbox{yellow!30}{jumped} \colorbox{yellow!30}{over} the lazy dog.
+              \item The quick\colorbox{yellow!30}{brown} \colorbox{yellow!30}{fox} \colorbox{green!30}{jumped} \colorbox{yellow!30}{over} \colorbox{yellow!30}{the} lazy dog.
+              \item The quick brown \colorbox{yellow!30}{fox} \colorbox{yellow!30}{jumped} \colorbox{green!30}{over} \colorbox{yellow!30}{the} \colorbox{yellow!30}{lazy} dog.
+              \item The quick brown fox \colorbox{yellow!30}{jumped} \colorbox{yellow!30}{over} \colorbox{green!30}{the} \colorbox{yellow!30}{lazy} \colorbox{yellow!30}{dog}.
+              \item The quick brown fox jumped \colorbox{yellow!30}{over} \colorbox{yellow!30}{the} \colorbox{green!30}{lazy} \colorbox{yellow!30}{dog}.
+              \item The quick brown fox jumped over \colorbox{yellow!30}{the} \colorbox{yellow!30}{lazy} \colorbox{green!30}{dog}.
+          \end{enumerate}
+          Here, green marks the center words and yellow marks the context words.
+          Table~\ref{tab:skipgram_examples} lists all examples generated for the
+          original skip-gram task using a context window of size 2 and the
+          given sentence.
+\end{enumerate}
+
+\begin{table}[t]
+    \centering
+    \begin{tabular}{ccc}
+        \toprule
+        Context Window & Source Word & Target Word \\
+        \midrule
+        1              & The         & quick       \\
+        1              & The         & brown       \\
+        2              & quick       & The         \\
+        2              & quick       & brown       \\
+        2              & quick       & fox         \\
+        3              & brown       & The         \\
+        3              & brown       & quick       \\
+        3              & brown       & fox         \\
+        3              & brown       & jumped      \\
+        4              & fox         & quick       \\
+        4              & fox         & brown       \\
+        4              & fox         & jumped      \\
+        4              & fox         & over        \\
+        5              & jumped      & brown       \\
+        5              & jumped      & fox         \\
+        5              & jumped      & over        \\
+        5              & jumped      & the         \\
+        6              & over        & fox         \\
+        6              & over        & jumped      \\
+        6              & over        & the         \\
+        6              & over        & lazy        \\
+        7              & the         & jumped      \\
+        7              & the         & over        \\
+        7              & the         & lazy        \\
+        7              & the         & dog         \\
+        8              & lazy        & over        \\
+        8              & lazy        & the         \\
+        8              & lazy        & dog         \\
+        9              & dog         & the         \\
+        9              & dog         & lazy        \\
+        \bottomrule
+    \end{tabular}
+    \caption{
+        Positive examples for the original skip-gram task and a context
+        window of size 2.
+    }
+    \label{tab:skipgram_examples}
+\end{table}
+
+\begin{enumerate}[label=(\alph*)]
+    \setcounter{enumi}{2}
+    \item The skip-gram model learns two word vectors for each word in our
+          vocabulary: one for when words are center (or source) words, and one
+          for when words are context (or target) words.
+          Let $\mW$ be the matrix constructed by stacking vectors of center
+          representations as rows, and $\mW'$ the matrix constructed in the same
+          way using context word representations.
+          Then $\vtheta=\{\mW, \mW'\}$.
+          The size of these matrices, and thus the number of parameters in our
+          skip-gram model, for our given vocabulary and vector size is:
+          \begin{align*}
+               & \mW\in\mathbb{R}^{101425\times 300}   \\
+               & \mW'\in\mathbb{R}^{101425\times 300}.
+          \end{align*}
+    \item We obtain vectors for a given word with a simple lookup function,
+          i.e.\ a 1-to-1 mapping between words in our vocabulary and rows of
+          $\mW$ and $\mW'$.
+          To obtain a single (final) representation of a given word, we need to
+          decide how to use the corresponding parameters in $\mW$ and $\mW'$.
+          For example, we may discard the representations in $\mW'$ and simply
+          use $\vw_{Frodo} = \mW_{79}$, i.e.\ the 79th row of matrix $\mW$.
+          Or we may choose to concatenate the corresponding representations from
+          $\mW$ and $\mW'$, i.e. $\vw_{Frodo} = \mW_{79}\oplus\mW'_{79}$.
+          Instead of concatenation, one could also use other operations between
+          vectors, such as computing the sum or average between the two.
+          Concatenation is a safe operation in that it does not change the
+          learned features, at the expense of doubling the dimension size of
+          final vectors.
+\end{enumerate}
+
+\section{Skip-Gram Training}
+
+\begin{enumerate}[label=(\alph*)]
+    \item The likelihood of the entire text corpus $T$ with a context window of
+          size $L$ is given by:
+          \begin{align*}
+              L(\vtheta|T) = \prod_{t=1}^{|T|}\prod_{-L\leq j\leq L, j\neq 0} p(w_{t+j}|w_t,\vtheta).
+          \end{align*}
+          Note that here we assume all words are \emph{conditionally}
+          independent of each other \emph{given} parameters $\vtheta$, i.e.\ the
+          embeddings.
+          In other words, we assume the embeddings encode the dependencies
+          between words.
+          The corresponding negative log-likelihood function using empirical
+          risk minimization is given by:
+          \begin{align*}
+              \text{NLL}(\vtheta) = - \frac{1}{|T|} \sum_{t=1}^{|T|} \sum_{-L\leq j\leq L, j\neq 0} \log p(w_{t+j}|w_t,\vtheta).
+          \end{align*}
+          During training, we find the values of $\vtheta$ that minimize this
+          expression using gradient-based optimizers.
+    \item We first need to obtain the vector for word \textit{Frodo} when used
+          as center (source) word.
+          We can represent the necessary lookup function with a matrix-vector
+          multiplication between our embedding matrix and the one-hot encoding
+          vector that represents our word.
+          Since \textit{Frodo} is the 2nd word in $V$, we get the center word
+          representation for \textit{Frodo} as follows:
+          \begin{align*}
+              \vw_{Frodo}^T & = [0, 1, 0, 0, 0, 0] \cdot \mW \\
+                            & = [0.91, 0.74, 0.27].
+          \end{align*}
+          Given that our model computes logits using dot products, we need the
+          dot products of $\vw_{Frodo}$ with all other context vectors $\vw'$,
+          i.e.\ each row in $\mW'$.
+          We obtain this with the following operation:
+          \begin{align*}
+              \vl = \vw_{Frodo}^T\cdot \mW'^T & = [0.9111, 0.5924, 0.9265, 1.2742, 0.9519, 0.7397].
+          \end{align*}
+          We then compute the log loss (i.e.\ cross-entropy) as follows:
+          \begin{align*}
+              L_{CE}(\textit{ring}|\textit{Frodo}) & = - \ln p(\textit{ring}|\textit{Frodo})                                                            &  & \text{(log loss)}        \\
+                                                   & = - \ln \frac{\text{exp}(\vw_{ring}^T\vw_{Frodo})}{\sum_{v\in V}\text{exp}(\vw_{v}^T\vw_{Frodo})} &  & \text{(softmax)}         \\
+                                                   & = - \vw_{ring}^T\vw_{Frodo} + \ln \sum_{v\in V} \text{exp}(\vw_{v}^T\vw_{Frodo})                  &  & \text{(log of division)} \\
+                                                   & = - 0.9265 + \ln(\text{exp}(0.9111) + \ldots + \text{exp}(0.7397))                                                               \\
+                                                   & = - 0.9265 + \ln(2.49 + 1.81 + 3.58 + 2.59 + 2.10)                                                                               \\
+                                                   & = - 0.9265 + 2.53                                                                                                                \\
+                                                   & = 1.60.
+          \end{align*}
+          Note that we get the desired behavior of a loss function.
+          Namely, the model is penalized (i.e.\ the loss increases) when it
+          assigns a high probability to negative examples.
+          Conversely, the model is rewarded (i.e. the loss decreases) when
+          it assigns a high probability to the positive example.
+          Given that these probabilities are determined by dot products, we
+          force the model to increase the similarity between vectors of words
+          only when they are found in the same context, i.e. we follow the
+          distributional hypothesis.
+    \item For a given positive example $(c,w)$ where $c$ is target word and $w$
+          is source word, we update the row of $\mW$ that corresponds to $w$ and
+          all context vectors for all words in $V$ except source word $w$, i.e.\
+          every row but one in $\mW'$.
+          This is because we use all our vocabulary in the denominator of the
+          softmax function to compute the probability of our given positive
+          example $(c,w)$.
+          Consequently, the cost of computing the probability of a single
+          example, and thus the number of relevant parameters during
+          backpropagation, is proportional to the size of $V$, which can be very
+          large.
+          This is why the authors used the binary clasification task with
+          negative sampling discussed in the lecture, to minimize training
+          costs.
+          It can be shown that the binary classification task with negative
+          sampling is an approximation to this approach.
+\end{enumerate}
+
+\section{Word Embeddings as Matrix Factorization}
+
+\begin{enumerate}[label=(\alph*)]
+    \item We can explicitly express the sampling of negatives in the objective
+          as follows:
+          \begin{align}\label{eq:basic_objective_with_expectation}
+              L(w,c) = \log \sigma(\vw_w^t\vw_c) + k\cdot \bb{E}_{i\sim P}[\log(-\vw_w^t\vw_i)].
+          \end{align}
+          In other words, each negative is weighted by its probability of being
+          sampled.
+          We can write this more explicitly in the following way:
+          \begin{align}\label{eq:basic_objective_with_relative_freq}
+              L(w,c) = \log \sigma(\vw_w^t\vw_c) + k\cdot \sum_{i\in V} \frac{\#(i)}{|V|}\log(-\vw_w^t\vw_i).
+          \end{align}
+    \item We can do this by applying
+          Equation~\ref{eq:basic_objective_with_relative_freq} over the entire
+          training set as follows:
+          \begin{align}\label{eq:general_objective_with_relative_freq}
+              L = \sum_{w\in V} \sum_{c\in V} \#(w,c)\left(\log \sigma(\vw_w^t\vw_c) + k\cdot \sum_{i\in V} \frac{\#(i)}{|V|}\log(-\vw_w^t\vw_i)\right),
+          \end{align}
+          where $\#(w,c)$ is the number of times tuple $(w,c)$ appears in the
+          training set.
+    \item In our objective, each training example $(w,c)$ is represented by
+          $\vw_w^T\vw_c$.
+          Using the fact that the gradient is a linear operator, and that
+          $\sum_{w'\in V} \sum_{c'\in V} \#(w',c') = \sum_{w'\in V}\#(w')$,
+          we first write the gradient we need to compute as follows:
+          \begin{align*}
+              \frac{\partial L}{\partial \vw_w^T\vw_c} & = \sum_{w'\in V} \sum_{c'\in V} \#(w',c')\left(\frac{\partial \log \sigma(\vw_{w'}^t\vw_{c'})}{\partial \vw_w^T\vw_c} + k\cdot \sum_{i\in V} \frac{\#(i)}{|V|}\frac{\partial \log\sigma(-\vw_{w'}^t\vw_i)}{\partial \vw_w^T\vw_c}\right)              \\
+                                                       & = \sum_{w'\in V} \sum_{c'\in V} \#(w',c')\frac{\partial \log \sigma(\vw_{w'}^t\vw_{c'})}{\partial \vw_w^T\vw_c} + k\cdot\sum_{w'\in V} \#(w')\cdot\sum_{i\in V} \frac{\#(i)}{|V|}\frac{\partial \log\sigma(-\vw_{w'}^t\vw_i)}{\partial \vw_w^T\vw_c}.
+          \end{align*}
+          We then compute this gradient, using the fact that
+          $\sigma(-x) = 1 - \sigma(x)$ and starting with the given hint:
+          \begin{align*}
+              \frac{\partial L}{\partial \vw_w^T\vw_c} & =  \#(w,c)\frac{\partial \log \sigma(\vw_{w}^t\vw_{c})}{\partial \vw_w^T\vw_c} + k\cdot\#(w)\cdot\frac{\#(c)}{|V|}\frac{1}{\sigma(-\vw_{w}^t\vw_c)}\frac{\partial (1 - \sigma(\vw_{w}^t\vw_c))}{\partial \vw_w^T\vw_c}             \\
+                                                       & =  \#(w,c)\frac{\sigma(\vw_{w}^t\vw_{c})(1 - \sigma(\vw_{w}^t\vw_{c}))}{\sigma{(\vw_{w}^t\vw_{c})}}  - k\cdot\#(w)\cdot\frac{\#(c)}{|V|}\frac{\sigma(\vw_{w}^t\vw_{c})(1 - \sigma(\vw_{w}^t\vw_{c}))}{\sigma{(-\vw_{w}^t\vw_{c})}} \\
+                                                       & =  \#(w,c)\sigma(-\vw_{w}^t\vw_{c}) - k\cdot\#(w)\cdot\frac{\#(c)}{|V|}\sigma(\vw_{w}^t\vw_{c}).
+          \end{align*}
+          Now, we set this gradient to be equal to zero and solve for
+          $\vw_{w}^t\vw_{c}$, which we set to $x = \vw_{w}^t\vw_{c}$ for
+          simplicity:
+          \begin{align*}
+              \#(w,c)\sigma(-x)                 & = k\cdot\#(w)\cdot\frac{\#(c)}{|V|}\sigma(x)                                                                  \\
+              \frac{\sigma(x)}{1 - \sigma(x)}   & = \frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}                                                                    \\
+              \frac{1+e^{-x}}{e^{-x}(1+e^{-x})} & = \frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}                  &  & (\text{definition of }\sigma)                \\
+              e^{x}                             & = \frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}                                                                    \\
+              x                                 & = \ln\left(\frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}\right) &  & (\text{applied logs})                        \\
+              \vw_{w}^t\vw_{c}                  & = \ln\left(\frac{\#(w,c)|V|}{\#(w)\#(c)}\right) - \ln k   &  & (\text{def. of } x, \text{log of division}). \\
+          \end{align*}
+          Recall that $k$ is the number of negative examples generated per
+          positive example in the training set (a hyperparameter).
+          If we set $k = 1$, we have
+          \begin{align*}
+              \vw_{w}^t\vw_{c} & = \log\left(\frac{\#(w,c)|V|}{\#(w)\#(c)}\right). \\
+          \end{align*}
+          This expression is known as the pointwise mutual information (PMI)
+          between $w$ and $c$, a commonly used concept in NLP that was already
+          covered in the basic Text Analytics course.
+          This concept is based on information-theoretic principles and is
+          defined as follows:
+          \begin{align*}
+              \operatorname{PMI}(w,c) = \log\frac{p(w,c)}{p(w)p(c)}.
+          \end{align*}
+          In other words, PMI measures the log of the ratio between the joint
+          probability of $w$ and $c$, i.e.\ how often they occur together, and
+          their marginal probabilities, i.e.\ how often they occur
+          independently.
+          This can be estimated by counting relative frequencies in a given
+          corpus like so:
+          \begin{align*}
+              \operatorname{PMI}(w,c) = \log\frac{\#(w,c)}{\#(w)\#(c)}\propto\log\frac{\#(w,c)|V|}{\#(w)\#(c)}.
+          \end{align*}
+          Intuitively, PMI tells us about how strongly (or weakly) related two
+          words are by counting how often they are seen together in a corpus and
+          contrasting this with how often they are seen independently.
+          The derivation in this task shows that the optimal solution of the
+          skip-gram approach as expressed by
+          Equation~\ref{eq:general_objective_with_relative_freq} is the PMI
+          matrix of our training corpus.
+          We can thus relate skip-gram to count-based sparse word
+          representations, because this allow us to interpret it as a form of
+          learning a matrix factorization of the PMI matrix of our training
+          corpus.
+          This is similar to how latent semantic analysis (LSA) derives
+          representations from the singular value decomposition of a
+          co-occurrence matrix, as also seen in the basic Text Analytics course.
+          Finally, note that if we set $k > 1$ as commonly done, we get a PMI
+          matrix shifted by $\log k$.
+          For more details,
+          see~\href{https://papers.nips.cc/paper_files/paper/2014/file/feab05aa91085b7a8012516bc3533958-Paper.pdf}{Levy and Goldberg}.
+\end{enumerate}
+
+\end{document}

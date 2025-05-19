@@ -1,0 +1,172 @@
+\documentclass[11pt,a4paper]{article}
+
+% packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{fullpage} 
+\usepackage{tabularx}
+\usepackage{amssymb,amstext,amsmath}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{algorithmic}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{url}
+\usepackage[colorlinks=true,bookmarks,unicode=true,pdftex,a4paper]{hyperref}
+\usepackage[round]{natbib}
+\usepackage[usenames,dvipsnames]{color, xcolor}
+\headsep1cm
+
+% macros
+\input{macros}
+
+% new commands
+\newcommand\op[1]{\operatorname{#1}}
+
+% header and footer
+\lhead{Advanced Methods in Text Analytics, FSS 2025}
+\chead{}
+\rhead{\thepage\ }
+\cfoot{}
+\pagestyle{fancy}
+
+\title{Advanced Methods in Text Analytics \\ 
+Exercise 6: Transformers - Part 2}
+\author{Daniel Ruffinelli}
+\date{FSS 2025}
+
+\begin{document}
+\maketitle
+
+\section{The Residual Stream}
+
+In this task, we take a closer look at both the forward and backward pass of a
+\href{https://arxiv.org/pdf/1706.03762}{\underline{transformer}} layer.
+By \emph{transformer layer}, we mean the combination of a multi-head
+self-attention followed by a feed-forward neural network, each with layer
+normalization applied after it, and each with a residual connection around them.
+For example, the encoder block in Figure 1 on the transformers paper linked
+above.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Let $\op{SA}$ be a self-attention layer parameterized by
+          $\mW^Q,\mW^K,\mW^V$, and let $\mX\in \bb{R}^{n\times d}$ be the
+          $d$-dimensional tokens from an input sequence of length $n$.
+          Give a formal expression for the output of $SA$ given $\mX$ as input.
+    \item Let $\op{FNN}$ be the feed-forward neural network applied after
+          $\op{SA}$ in a transformer layer, and assume it projects the vectors
+          in input $\mX$ to a $m$-dimensional space and then back down to a
+          $d$-dimensional space.
+          Give a formal expression for the output of $\op{FNN}$ given $\mX$ as
+          input.
+          Assume a $ReLU$ activation function is used after the first
+          projection, and make sure to specify the size of the parameters in
+          $\op{FNN}$.
+    \item Using $\op{SA}$ and $\op{FNN}$, give an expression for the output of a
+          transformer layer $\op{TF}$ given $\mX$ as input.
+          Use $\op{LN_1}$ and ${LN_2}$ for layer normalization after $\op{SA}$
+          and $\op{FNN}$, respectively.
+    \item What do the layer normalization operators $LN_i$ do? And could we use
+          them in a different part of the transformer layer?
+    \item Let us now focus on the backward pass.
+          Recall that during backpropagation, we apply the chain rule of
+          calculus to compute the gradients of all parameterized operators used
+          in the forward pass, usually w.r.t. some loss function $L$.
+          In the context of some transformer layer $\op{TF_i}$, these operators
+          are $\op{SA},\op{FNN},\op{LN_1}$ and $\op{LN_2}$.
+          Give a formal expression for the gradient needed to update parameters
+          $\theta_{SA}$ of operator $\op{SA}$ w.r.t.\ some loss function $L$.
+          Omit the use of layer normalization and residual connections for
+          simplicity.
+          Indicate which part of the expression is ``received'' from the
+          $\op{FNN}$ layer above during backpropagation.
+    \item Following your previous answer, what is the gradient that is passed
+          down to lower layers, e.g.\ the lower transformer layer
+          $\op{TF_{i-1}}$?
+          Give a formal expression for this gradient and briefly describe why
+          this gradient is needed during training.
+    \item Now rewrite your previous answer while considering the residual
+          connection around $\op{SA}$.
+          Simplify the resulting expression as much as possible with the goal of
+          answering the question: what happens during training to the gradient
+          that we received from higher layers as it's passed through an
+          $\op{SA}$ operator that uses residual connection?
+          \textbf{Hint:} No need to compute any gradients, but do use the fact
+          that the gradient is a linear operator.
+\end{enumerate}
+
+\section{Attention Heads are Independent and Additive}
+
+In this task, we take a closer look at the multi-head attention mechanism.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Let $\op{MHA}$ be a multi-head attention layer, $\op{SA}_i$ its
+          $i$-th self-attention layer and $\mX\in \bb{R}^{n\times d}$ the
+          $d$-dimensional tokens from an input sequence of length $n$.
+          Give a formal expression for the output of $\op{MHA}$ as a function of
+          its $k$ attention heads $SA_i$, i.e. $1 <= i <= k$, given $\mX$ as
+          input.
+          As usual, make sure to formally define all components in your
+          expression.
+          How is $\op{MHA}$ parameterized?
+    \item Assume MHA takes as input the output $\mO^i$ of each self-attention
+          head $\op{SA}_i(\mX)$, i.e.\ $\mO^i = \op{SA}_i(\mX)$.
+          Give a formal expression for the computations needed to compute a 
+          single component of the output matrix of $\op{MHA}$ as a function of
+          each $\mO^i$.
+    \item Using the intuition built in the previous subtask, show that the
+          output of the multi-head attention layer $\op{MHA}$ can be expressed 
+          as the following linear combination:
+          \begin{align}
+              \op{MHA}(\mX) & = \sum_{i=1}^{k} \mO^i\mM^i + \mX,
+          \end{align}
+          and make sure to define exactly what each $\mM^i$ is. 
+          What does this rewriting of the multi-head attention layer imply about
+          the operations computed by each attention head?
+\end{enumerate}
+
+\section{Language Models with Transformers}
+
+In this exercise, we have a quick look at how to implement a language model with
+transformers using \href{https://pytorch.org/}{PyTorch}.
+As before with our FNN-based and RNN-based language models, we will need to
+define a class for the model, a training loop and an evaluation loop.
+In addition, we also need to implement positional encodings.
+We use the ones used by the original transformer architecture.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Read the code for the class \emph{PositionalEncoding} to make sure
+          it's correct w.r.t.\ how these positional embeddings are defined.
+          Then check documentation for PyTorch's
+          \href{https://pytorch.org/docs/stable/generated/torch.nn.Module.html}{Module}.
+          What does the method \emph{register\_buffer} do?
+    \item Read the code for the TransformerModel class. What kind of
+          architecture does it use? Encoder-decoder? Encoder-only?
+    \item What is the role of the function
+          \emph{\_generate\_square\_subsequent\_mask}? Read the documentation
+          for the
+          \href{https://pytorch.org/docs/stable/generated/torch.nn.TransformerEncoder.html}{Transformer Class}
+          to find out more.
+    \item What kind of language model is it? Causal or masked? Why?
+          \textbf{Hint:} What does the function triu do?
+    \item Complete the \emph{forward} function of your transformer.
+    \item We can train this transformer in the same way that we trained our RNN
+          in our last coding exercise: with \emph{teacher forcing}.
+          So, we will use the same methods for preprocessing the data, creating
+          the batches and training the model.
+          Note that the training method was modified slightly to accomodate this
+          model's forward function (no need to pass the hidden state as with
+          RNNs).
+          Use the given code to train the transformer on the \emph{Shakespeare}
+          data.
+          What perplexity do we get on validation data?
+          Is it higher or lower than when using an RNN as before?
+          Is the task comparable w.r.t. that case? Discuss.
+    \item Can you modify the model so it performs better? Consider using
+          different embedding sizes, different number of layers, etc.
+\end{enumerate}
+
+\end{document}

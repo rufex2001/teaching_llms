@@ -1,0 +1,166 @@
+\documentclass[11pt,a4paper]{article}
+
+% packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{fullpage} 
+\usepackage{tabularx}
+\usepackage{amssymb,amstext,amsmath}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{algorithmic}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{url}
+\usepackage[colorlinks=true,bookmarks,unicode=true,pdftex,a4paper]{hyperref}
+\usepackage[round]{natbib}
+\usepackage[usenames,dvipsnames]{color, xcolor}
+\headsep1cm
+
+% macros
+\input{macros}
+
+% new commands
+\newcommand\op[1]{\operatorname{#1}}
+
+% header and footer
+\lhead{Advanced Methods in Text Analytics, FSS 2025}
+\chead{}
+\rhead{\thepage\ }
+\cfoot{}
+\pagestyle{fancy}
+
+\title{Advanced Methods in Text Analytics \\ 
+Exercise 7: Large Language Models - Part 1}
+\author{Daniel Ruffinelli}
+\date{FSS 2025}
+
+\begin{document}
+\maketitle
+
+\section{Transfer Learning}
+
+In this task, we discuss the basic concepts behind transfer learning.
+
+\begin{enumerate}[label=(\alph*)]
+    \item What do we mean when we say that a model is ``pre-trained''?
+          Why don't we say the model is simply ``trained''?
+          What type of data do we need for pre-training a language model?
+    \item What are the two more common training objectives for pre-training
+          large language models?
+    \item Let $S$ be the set of sequences used for training language model $p$.
+          Using $p$ and $S$, give formal definitions for the training objectives
+          mentioned in your previous answer.
+    \item What type of data should we use for pre-training an LLM? What factors
+          should we consider when choosing what data to train on?
+    \item We typically talk of fine-tuning a pre-trained model. What do we mean
+          by fine-tuning? How is it different from ``pre-training'' a model?
+          What type of data do we need for fine-tuning a language model?
+    \item What is the main challenge behind traning models with a large number
+          of parameters?
+\end{enumerate}
+
+\section{Parameter Efficient Fine-Tuning}
+
+Given the large number of parameters in LLMs, a set of methods have focused on
+fine-tuning large-size models by tuning only a subset of their parameters.
+In this task, we go over some of the concepts behind such parameter efficient
+fine-tuning (PEFT) methods.
+
+\begin{enumerate}[label=(\alph*)]
+    \item What is the main idea behind parameter-efficient fine-tuning (PEFT)?
+          Briefly describe two different PEFT methods.
+    \item Let $\mX = \{\vx_1,\ldots,\vx_n\}$ be the input sequence and
+          $\mH = \{\vh_1,\ldots, \vh_n\}$ the corresponding output sequence of
+          the FNN operator in a transformer block, where $\op{FNN}(\mX)$ is
+          parameterized by $\mW_{up}\in\bb{R}^{d\times 4d}$ and
+          $\mW_{down}\in\bb{R}^{4d\times d}$, i.e.\ the up and down projections
+          in FNN, respectively.
+          In other words, $\mH = \op{FNN}(\mX\mid \mW_{up}, \mW_{down})$ (note
+          that we omit biases and the residual connection for simplicity).
+          Give a formal expression for the output of this FNN operator.
+    \item Following the previous subtask, assume we fine-tune the FNN operator
+          using the Houlsby adapters introduced in the lectures, and call this
+          fine-tuned operator FNN'.
+          Give a formal expression for FNN' given input sequence $\mX$ (don't
+          use any biases in the adapter).
+          Make sure to formally define all parameters introduced by the adapter
+          as well as their exact sizes.
+          What are the hyperparameters used in these adapters? How are these
+          hyperparameters typically set?
+    \item Can Houlsby adapters only be applied to FNN operators? Why or why not?
+    \item Now assume we fine-tune \emph{only} the up projection of the FNN
+          operator using LoRA adapters.
+          Give a formal expression for FNN' given input sequence $\mX$ (again,
+          no biases in the adapter).
+          Make sure to formally define all parameters introduced by LoRA as well
+          as their exact sizes.
+          As before, specify the hyperparameters used in LoRA adapters and
+          say how they are typically set.
+    \item Can LoRA adapters only be applied to FNN operators? Why or why not?
+    \item If you haven't already, show that the application of LoRA adapters
+          can be expressed as follows:
+          \begin{align}
+              \op{FNN'}(\mX) & = \mX(\mW_{up} + \Delta\mW_{up})\mW_{down},
+          \end{align}
+          where $\Delta\mW_{up}$ is the update introduced during fine-tuning.
+          What is the advantage of this formulation?
+          Can Houlsby adapters be expressed in a similar way?
+\end{enumerate}
+
+\section{Transformer-Based Large Language Models}
+
+In this task, we discuss the main components of a transformer-based large
+language model (LLM).
+In particular, we focus on a causal language model (CLM) similar to the GPT-3
+model released by~\href{https://arxiv.org/pdf/2005.14165}{Brown et al. (2020)}.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Why do transformer-based language models require positional encodings?
+          Given a language model with $L$ transformer layers, how many
+          positional encoding layers does this model use?
+    \item What is the role of the language model head in a transformer-based
+          language model?
+          What sort of ``weight tying'' is typically used with the language
+          model head?
+    \item As done in previous exercises, give a formal expression for the
+          output of a multi-head attention operator $\op{MHA}$ that uses $n$
+          self-attention heads $\op{SA}_i$?
+          What are the parameters $\vtheta_{\op{MHA}}$ assuming each $\op{SA}_i$
+          operator is parameterized by $\vtheta_{\op{SA}_i}$?
+    \item Assume you have a pre-trained causal language model $\op{CLM}$
+          parameterized by $\vtheta_{CLM}$.
+          The model is implemented with transformers and follows the GPT-3
+          architecture, meaning the size of the input and output representations
+          in each transformer layer is $d_H = 12288$.
+          If queries, keys and values in each self-attention head are all
+          projections of the input representations to dimension
+          $d_{\op{SA}_i} = 128$ and the projection \emph{inside} the multi-head
+          attention operator $\op{MHA}$ does not change the dimension of its
+          inputs, how many attention heads does each $\op{MHA}$ operator have?
+          Give a numeric answer and show the calculations that lead to your
+          answer.
+          \textbf{Hint:} remember that the size of the output representations of
+          a $\op{MHA}$ operator are also the same size as its input
+          representations.
+    \item Given that the model above follows the GPT-3 architecture, it has
+          $L = 96$ transformer layers, a maximum input sequence length of
+          $2048$, and a vocabulary size of $V = 50000$.
+          How many parameters does this CLM model have?
+          I.e.\ what is the size of $\vtheta_{\op{CLM}}$?
+          And which component has the most parameters?
+          Give numeric answers and show the calculations that lead you to them.
+          To answer the question, you may ignore all biases and layer
+          normalization operators.
+          In addition, assume positional embeddings are not learned, weight
+          tying takes place in the language model head, and that the $\op{FNN}$
+          layers inside each transformer layer project representations up to a
+          space 4 times the size of the input and then back down (see forward
+          pass of transformer layer in Exercise 6).
+\end{enumerate}
+
+
+\end{document}

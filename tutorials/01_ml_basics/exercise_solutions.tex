@@ -1,0 +1,370 @@
+\documentclass[11pt,a4paper]{article}
+
+% packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{setspace}
+\usepackage{enumitem}
+% \usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{fullpage} 
+\usepackage{tabularx}
+\usepackage{amssymb,amstext,amsmath}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+% \usepackage{algorithmic}
+% \usepackage[ruled,vlined]{algorithm2e}
+\usepackage{url}
+\usepackage[bookmarks,unicode=true,pdftex,a4paper]{hyperref}
+\usepackage[round]{natbib}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\headsep1cm
+
+% macros
+\input{../macros}
+
+% header and footer
+\lhead{Advanced Methods in Text Analytics, FSS2025}
+\chead{}
+\rhead{\thepage\ }
+\cfoot{}
+\pagestyle{fancy}
+
+\title{Advanced Methods in Text Analytics \\ 
+Exercise 1: Machine Learning Basics \\ 
+\textbf{Solutions}}
+\author{Daniel Ruffinelli}
+\date{FSS 2025}
+
+\begin{document}
+\maketitle
+
+\section{Machine Learning Basics}
+
+\begin{enumerate}[label=(\alph*)]
+    \item
+          \begin{enumerate}[label=(\roman*)]
+              \item $\vx$ is an input vector, typically representing a data
+                    point in some dataset. These vectors are often referred to
+                    as feature vectors, and their corresponding vector space
+                    $\bb{R}^n$ as a feature space.
+                    These names are derived from each $\vx_i$ being referred to
+                    as a \emph{feature}, which models use as input during
+                    training and inference.
+                    Thus, a feature vector is the set of features we use to
+                    represent our datapoints when modeling our task of choice.
+              \item The output of our function, used for inference or to make
+                    predictions with the model.
+              \item This is read as ``function $\vh$ of $\vx$ \emph{given}
+                    parameters $\vtheta$''.
+              \item $n$ can take any value, typically in $\bb{N}$. This value is
+                    typically a design decision, e.g.\ the number of features we
+                    manually crafted, the number of PCA components we use for
+                    dimensionality reduction, or the size of each hidden layer
+                    in a feed-forward neural network (more on this in future
+                    lectures/tutorials). \\
+                    $m$ can also take any value in $\bb{N}$, i.e.\
+                    $\vy\in\bb{R}^d$, where $d$ is not necessarily equal to
+                    $n$. This is less a design decision and more a property of
+                    the task we are modeling. E.g.\ for binary classification,
+                    we typically have $m=1$, whereas for a classification
+                    problem with $k$ classes, $m=k$.
+          \end{enumerate}
+    \item \emph{Classification} when output is categorical, e.g.\ part-of-speech
+          (POS) tagging or next-word prediction. \emph{Regression} when the
+          output is a real number, e.g. in automated essay scoring.
+    \item Learning refers to the process of estimating the parameters $\vtheta$
+          of function $f$ in order to solve an optimization problem, usually the
+          minimization of some training objective.
+          The goal is not to solve this optimization problem as best as
+          possible, but to perform well on unseen data, i.e.\ to perform a
+          task well \emph{generally}.
+    \item Parameters that we do not learn, but manually set. These are often not
+          parameters of the model, but they related to the training setting.
+          For example, using a bias or not with linear classifiers, the choice
+          of a loss function, and even the choice of a model, can all be seen as
+          hyperparameters.
+          We typically find useful values for hyperparameters by conducting
+          grid search or random search, although more involved methods exist.
+    \item This related to the goal of machine learning, which is for models to
+          generalize well to \emph{unseen} data.
+          To that end, datasets are usually split into \emph{training} and
+          \emph{test} splits, so that we may estimate the parameters of our
+          models on training data, but evaluate our models performance on unseen
+          data using the test set.
+          However, we typically have to make a lot of decisions when training a
+          model, e.g.\ which model to use, how to set the various
+          hyperparameters in our setting, etc.
+          Generally, we would like to know how these decisions impact our model
+          performance, but if we compare two different hyperparameter settings
+          on test data, e.g. whether to use a bias or not, then we would
+          identify which one works best on that test data, which would make that
+          data no longer unseen (we would already know something about it, e.g.\
+          which settings work best for it).
+
+          Validation split exists to allow for the model selection process
+          without compromising the test data split. That is, this is the
+          evaluation data we can use to train various models under different
+          settings and choose the settings that yield the best performing model
+          on the validation set, to then finally report its performance on the
+          test set, which has remained unseen throughout the entire process
+          (typically by training on the training and validation sets combined to
+          get more data).
+          Note that these splits are typically constructed by taking an existing
+          dataset, shuffling its examples and then randomly sampling examples
+          for each split without replacement, in order to ensure all splits come
+          from the same distribution.
+    \item We say underfitting occurs when a model is too simple to perform well
+          on a task, even on the data it is trained on.
+          Conversely, we say overfitting occurs when a model is clearly capable
+          of performing well on a task to the point that it learns all the
+          detail and noise in the data it was trained on, while still not
+          performing well on unseen data.
+
+          We can measure underfitting by looking at the model's performance on
+          the training set, e.g.\ compute the accuracy of the training set in a
+          classification setting.
+          We can measure overfitting by looking at a model's performance on
+          unseen data, e.g.\ a validation split and contrasting it with its
+          performance on the training set. High performance during training but
+          low performance on unseen data is a clear indication of overfitting.
+          In practice, this is not so straightforward to see, as difference in
+          performance across training and validation are common, so a baseline
+          is required to determine whether the difference is
+          significant/problematic.
+\end{enumerate}
+
+\section{Log-linear Classifiers}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Given that logistic regression is a linear classifier, a logistic
+          regression model that takes an $n$-dimensional vector as input, and
+          does not use a bias, can be formally described with the following
+          linear combination:
+          \begin{align}
+              p(y=1\mid x) & = \sigma\left(\sum_{i=1}^{n}w_i\cdot x_i\right) \\
+              p(y=0\mid x) & = 1-p(y=1),
+          \end{align}
+          where $w_i\in\bb{R}$ is the parameter (weight) that corresponds to
+          input feature $x_i$. Being a linear combination of the input features,
+          this model has as many parameters as there are features in the input
+          vector.
+    \item We have:
+          \begin{align}
+              p(y=1\mid x) & = \sigma(\vw^\top\vx).
+          \end{align}
+    \item We have:
+          \begin{align}
+              p(y=1\mid x) & = \sigma\left(\sum_{i=1}^{n}(w_i\cdot x_i) + b\right) \\
+              p(y=0\mid x) & = 1-p(y=1),
+          \end{align}
+          where $b\in\bb{R}$ is the bias term.
+
+          We can still write this in vectorized form, but to do this comfortably
+          we make use of what we call a \emph{bias feature} $x_0=1$, which acts
+          as the coefficient for the bias weight in the linear combination. That
+          is:
+          \begin{align}
+              p(y=1\mid x) & = \sigma(\vw^\top\vx).
+          \end{align}
+          where $\vx\in\bb{R}^{n+1}$, i.e.\ $\vx=(x_o, x_1, \ldots, x_n)$.
+    \item We have:
+          \begin{align}
+              f(y=1\mid\vx) & = \exp(\vw^\top\vx) = e^{\vw^\top\vx}, \\
+              f(y=0\mid\vx) & = 1 - f(y=1\mid\vx).
+          \end{align}
+    \item For $c\in C$ classes, we have:
+          \begin{align}\label{eq:log_linear}
+              f(y=c\mid\vx) & = \exp(\vw_c^\top\vx) = e^{\vw_c^\top\vx},
+          \end{align}
+          where $\vw_c$ are the parameters used for making predictions for class
+          $c$.
+          That is, this general log-linear model has as many parameters as there
+          are input features \emph{for each class} $c\in C$.
+    \item We can accomplish this by normalizing the output of the model, so that
+          it represents a probability distribution over the classes.
+          Concretely, we have:
+          \begin{align}\label{eq:softmax}
+              p(y=c\mid\vx) & = \frac{\exp(\vw_c^\top\vx)}{\sum_{c'\in C}\exp(\vw_{c'}^\top\vx)},
+          \end{align}
+          where $C$ is the set of classes in our classification task.
+
+          Eq.~\ref{eq:softmax} is known as a \emph{softmax function}, which
+          gives the name to this multi-class log-linear model: softmax
+          regression.
+          Note that given input vector $\vx$ and class $c$, the function returns
+          a single probability value. That means that, for a given input vector
+          $\vx$, we can get an entire ``softmax distribution'' over classes by
+          computing this function for all classes $c\in C$.
+          Specifically, we can compute $\vw_c^\top\vx$ for all $c\in C$ and 
+          store these results in a $C$-dimensional vector $\vl\in\bb{R}^C$.
+          Then, by normalizing each entry in that vector as with
+          Eq.~\ref{eq:softmax}, we get a probability vector $\vy\in\bb{R}^C$
+          that contains the distribution over all classes, i.e.\ where all of
+          its entries add up to 1.
+          That is:
+          \begin{align}
+              \vy = softmax(\vl),
+          \end{align}
+          where the $i$-th component of $\vy$ is given by:
+          \begin{align}
+              \vy_i = \frac{e^{l_i}}{\sum_{j=1}^{C}e^{l_j}}.
+          \end{align}
+
+          This is typically the way the softmax function is represented in
+          vectorized form. 
+          This is a very interpretable output for a classification model.
+    \item Let $\mW\in\bb{R}^{n\times C}$ be parameters of our model such that
+          column $\vw_i$ corresponds to class $i\in C$.
+          Using our vectorized softmax function from the previous question, we
+          have:
+          \begin{align}
+              \mY = softmax(\mX\mW),
+          \end{align}
+          where we assume our softmax operation is applied row-wise.
+    \item There are a few reasons for this, but in short, there are some
+          computational reasons, and some statistical reasons.
+          The computational reasons are (i) it simplifies the math and therefore
+          computations, e.g. when computing likehoods of multiple data points,
+          and (ii) it helps to avoid numerical underflow issues that
+          can occur when multiplying many probabilities together.
+          The main statistical reason is that it makes the model more
+          interpretable, as it can be related to concepts like odds and
+          independence.
+\end{enumerate}
+
+\section{Training Log-linear Classifiers}
+
+\begin{enumerate}[label=(\alph*)]
+    \item We have:
+          \begin{align}
+              p(X\mid\vw) = p(x_1\mid\vw)p(x_2\mid\vw)\ldots p(x_n\mid\vw) = \prod_{i=1}^{n}p(x_i\mid\vw).
+          \end{align}
+    \item We have:
+          \begin{align}
+              p(X\mid\vw) = \prod_{x_p\in X_{pos}}p(x_p\mid\vw)\prod_{x_n\in X_{neg}}\left(1 - p(x_n\mid\vw)\right).
+          \end{align}
+    \item We have:
+          \begin{align}
+              \set{L}(\vw\mid X) = \prod_{x_p\in X_{pos}}p(x_p\mid\vw)\prod_{x_n\in X_{neg}}\left(1 - p(x_n\mid\vw)\right).
+          \end{align}
+    \item We have:
+          \begin{align}
+              \set{LL}(\vw\mid X) & = \ln p(X\mid\vw)                                                                                                             \\
+                                  & = \ln \left(\prod_{i=1}^{n}p(x_i\mid\vw)\right)                                                                               \\
+                                  & = \ln \left(\prod_{x_p\in X_{pos}}p(x_p\mid\vw)\prod_{x_n\in X_{neg}}\left(1 - p(x_n\mid\vw)\right)\right)                    \\
+                                  & = \sum_{x_p\in X_{pos}}\ln p(x_p\mid\vw) + \sum_{x_n\in X_{neg}}\ln\left(1 - p(x_n\mid\vw)\right). \label{eq:log_linear_mle}
+          \end{align}
+          This is the general expression we want to maximize when training log-linear models with MLE using the i.i.d.
+          assumption. Specifically, we want to find the value of $\vw$ that maximizes Eq.~\ref{eq:log_linear_mle}.
+    \item We have:
+          \begin{align}
+              \set{LL}(\vw\mid X) & = \sum_{x_p\in X_{pos}}\ln\sigma(\vw^\top\vx) + \sum_{x_n\in X_{neg}}\ln\left(1 - \sigma(\vw^\top\vx)\right)                                                          \\
+                                  & = \sum_{x_p\in X_{pos}}\ln \frac{e^{\vw^\top\vx_p}}{1 + e^{\vw^\top\vx_p}} + \sum_{x_n\in X_{neg}}\ln\left(1 - \frac{e^{\vw^\top\vx_n}}{1 + e^{\vw^\top\vx_n}}\right) \\
+                                  & = \sum_{x_p\in X_{pos}}\ln \frac{e^{\vw^\top\vx_p}}{1 + e^{\vw^\top\vx_p}} + \sum_{x_n\in X_{neg}}\ln\left(\frac{1}{1 + e^{\vw^\top\vx_n}}\right)                     \\
+                                  & = \sum_{x_p\in X_{pos}} \left(\vw^\top\vx_p - \ln(1 + e^{\vw^\top\vx_p})\right) - \sum_{x_n\in X_{neg}}\ln\left(1 + e^{\vw^\top\vx_n}\right).
+          \end{align}
+    \item Let $\nabla=\nabla_{\vw}$. We have:
+          \begin{align}
+              \nabla\set{LL} & = \nabla \left(\sum_{x_p\in X_{pos}} \left(\vw^\top\vx_p - \ln(1 + e^{\vw^\top\vx_p})\right) - \sum_{x_n\in X_{neg}}\ln\left(1 + e^{\vw^\top\vx_n}\right)\right)                           \\
+                             & = \nabla\sum_{x_p\in X_{pos}} \left(\vw^\top\vx_p - \ln(1 + e^{\vw^\top\vx_p})\right) - \nabla\sum_{x_n\in X_{neg}}\ln\left(1 + e^{\vw^\top\vx_n}\right)                                   \\
+                             & = \sum_{x_p\in X_{pos}} \left(\vx_p - \nabla\ln(1 + e^{\vw^\top\vx_p})\right) - \sum_{x_n\in X_{neg}}\nabla\ln\left(1 + e^{\vw^\top\vx_n}\right)                                           \\
+                             & = \sum_{x_p\in X_{pos}} \left(\vx_p - \frac{e^{\vw^\top\vx_p}}{1 + e^{\vw^\top\vx_p}}\vx_p\right) - \sum_{x_n\in X_{neg}}\left(\frac{e^{\vw^\top\vx_n}}{1 + e^{\vw^\top\vx_n}}\vx_n\right) \\
+                             & = \sum_{x_p\in X_{pos}} \left(1 - \frac{e^{\vw^\top\vx_p}}{1 + e^{\vw^\top\vx_p}}\right)\vx_p - \sum_{x_n\in X_{neg}}\left(\frac{e^{\vw^\top\vx_n}}{1 + e^{\vw^\top\vx_n}}\vx_n\right)     \\
+                             & = \sum_{x_p\in X_{pos}} \left(1 - \sigma(\vw^\top\vx_p)\right)\vx_p - \sum_{x_n\in X_{neg}}\sigma(\vw^\top\vx_n)\vx_n.
+          \end{align}
+    \item For SGD, see Algorithm~\ref{alg:sgd}. For BGD, see
+          Algorithm~\ref{alg:bgd}.
+
+          \begin{algorithm}
+              \caption{Stochastic Gradient Descent}
+              \label{alg:sgd}
+              \begin{algorithmic}[1]
+                  \Procedure{Gradient Descent}{Dataset $X$, Objective function $J$, Model $p_{\vw}$, Learning rate $lr$, Number of Epochs $N$}
+                  \State $\vw\leftarrow random()$ \qquad   // random weight initialization
+                  \For{$i \in\{1,\ldots N\}$} \qquad   // we iterate over epochs
+                  \For{$x_i\in X$} \qquad   // we iterate over the dataset
+                  \State $g_i\leftarrow \nabla_{\vw}J(p_{\vw}(x_i))$
+                  \State $\vw_{i+1}\leftarrow \vw_i - lr \cdot g_i$ \qquad   // update rule
+                  \EndFor
+                  \EndFor
+                  \State{\textbf{Return} $p_{\vw}$}
+                  \EndProcedure
+              \end{algorithmic}
+          \end{algorithm}
+          \begin{algorithm}
+              \caption{Batch Gradient Descent}
+              \label{alg:bgd}
+              \begin{algorithmic}[1]
+                  \Procedure{Gradient Descent}{Dataset $X$, Objective function $J$, Model $p_{\vw}$, Learning rate $lr$, Number of Epochs $N$, Batch Size $b$}
+                  \State $\vw\leftarrow random()$ \qquad   // random weight initialization
+                  \For{$i \in\{1,\ldots N\}$}
+                  \For{$batch = [x_1,\ldots,x_b]$ where $batch$ is sampled without replacement from $X$}
+                  \State $g_i\leftarrow \nabla_{\vw}J(p_{\vw}(batch))$
+                  \State $\vw_{i+1}\leftarrow \vw_i - lr \cdot g_i$ \qquad   // update rule
+                  \EndFor
+                  \EndFor
+                  \State{\textbf{Return} $p_{\vw}$}
+                  \EndProcedure
+              \end{algorithmic}
+          \end{algorithm}
+
+          Note that we still rely on gradients that need to be computed every
+          time we update our parameters. But we don't compute gradients manually
+          when working with these models. This is generally handled by tools
+          like \href{https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html}{Autograd}.
+          But it's important to understand the process underlying the training
+          of models, despite it being automatic, so we can reason about model 
+          performance as a function of its training process.
+    \item For SGD, see Algorithm~\ref{alg:sgd_shuffled}. For BGD, see
+          Algorithm~\ref{alg:bgd_shuffled}.
+
+          \begin{algorithm}
+              \caption{Stochastic Gradient Descent with Shuffling}
+              \label{alg:sgd_shuffled}
+              \begin{algorithmic}[1]
+                  \Procedure{Gradient Descent}{Dataset $X$, Objective function $J$, Model $p_{\vw}$, Learning rate $lr$, Number of Epochs $N$}
+                  \State $\vw\leftarrow random()$ \qquad   // random weight initialization
+                  \For{$i \in\{1,\ldots N\}$} \qquad   // we iterate over epochs
+                  \For{$x_i\in X$} \qquad   // we iterate over the dataset
+                  \State $g_i\leftarrow \nabla_{\vw}J(p_{\vw}(x_i))$
+                  \State $\vw_{i+1}\leftarrow \vw_i - lr \cdot g_i$ \qquad   // update rule
+                  \EndFor
+                  \State shuffle($X$)
+                  \EndFor
+                  \State{\textbf{Return} $p_{\vw}$}
+                  \EndProcedure
+              \end{algorithmic}
+          \end{algorithm}
+          \begin{algorithm}[h!]
+              \caption{Batch Gradient Descent with Shuffling}
+              \label{alg:bgd_shuffled}
+              \begin{algorithmic}[1]
+                  \Procedure{Gradient Descent}{Dataset $X$, Objective function $J$, Model $p_{\vw}$, Learning rate $lr$, Number of Epochs $N$, Batch Size $b$}
+                  \State $\vw\leftarrow random()$ \qquad   // random weight initialization
+                  \For{$i \in\{1,\ldots N\}$}
+                  \For{$batch = [x_1,\ldots,x_b]$ where $batch$ is sampled without replacement from $X$}
+                  \State $g_i\leftarrow \nabla_{\vw}J(p_{\vw}(batch))$
+                  \State $\vw_{i+1}\leftarrow \vw_i - lr \cdot g_i$ \qquad   // update rule
+                  \EndFor
+                  \State shuffle($X$)
+                  \EndFor
+                  \State{\textbf{Return} $p_{\vw}$}
+                  \EndProcedure
+              \end{algorithmic}
+          \end{algorithm}
+
+          While GD considers the entire dataset when computing gradients, and 
+          SGD treats all examples equally, BGD uses a subset of the dataset to 
+          compute each gradient.
+          Shuffling the dataset at the end of each epoch is a common practice to
+          avoid using the same subset of examples for each BGD update, as this 
+          may bias the training process in favor of some examples over others.
+          BGD is by far the most method used in NLP training. It has been
+          empirically shown that SGD and BGD can converger faster than GD, but
+          they can also be more unstable.
+\end{enumerate}
+
+\end{document}

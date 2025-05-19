@@ -1,0 +1,106 @@
+% misc
+\newcommand\todo[1]{\textcolor{red}{TODO: #1}}
+\newcommand\hide[1]{\textcolor{white}{#1}}
+
+% formating
+\newcommand\bld[1]{\textbf{#1}}
+\newcommand\ul[1]{\underline{#1}}
+\newcommand\n[1]{\numprint{#1}}
+\newcommand{\ts}{\textsuperscript}
+\newcommand\red[1]{\textcolor{red}{#1}}
+\newcommand\blue[1]{\textcolor{blue}{#1}}
+
+% sets
+\newcommand\set[1]{\mathcal{#1}}
+\newcommand\bb[1]{\mathbb{#1}}
+\renewcommand\:{\colon} % for use with \sset, etc.
+\newcommand{\sset}[1]{\left\{\,#1\,\right\}} % { ? }, automatic brackets
+\newcommand{\ssets}[1]{\left\{#1\right\}} % {?}, automatic brackets
+\newcommand{\ssetn}[1]{\{\,#1\,\}} % { ? }, normal brackets
+
+% table formatting
+% To better align bold entries in S columns (still broken)
+\usepackage{siunitx}
+\robustify\bfseries
+\newrobustcmd{\bfcell}{\bfseries}
+
+% vector variables (taken from macros by Rainer Gemulla)
+\newcommand\vect[1]{{\boldsymbol{#1}}}
+\newcommand\va{\vect{a}}
+\newcommand\vb{\vect{b}}
+\newcommand\vc{\vect{c}}
+\newcommand\vd{\vect{d}}
+\newcommand\ve{\vect{e}}
+\newcommand\vf{\vect{f}}
+\newcommand\vg{\vect{g}}
+\newcommand\vh{\vect{h}}
+\newcommand\vi{\vect{i}}
+\newcommand\vj{\vect{j}}
+\newcommand\vk{\vect{k}}
+\newcommand\vl{\vect{l}}
+\newcommand\vm{\vect{m}}
+\newcommand\vn{\vect{n}}
+\newcommand\vo{\vect{o}}
+\newcommand\vp{\vect{p}}
+\newcommand\vq{\vect{q}}
+\newcommand\vr{\vect{r}}
+\newcommand\vs{\vect{s}}
+\newcommand\vt{\vect{t}}
+\newcommand\vu{\vect{u}}
+\newcommand\vv{\vect{v}}
+\newcommand\vw{\vect{w}}
+\newcommand\vx{\vect{x}}
+\newcommand\vy{\vect{y}}
+\newcommand\vz{\vect{z}}
+\newcommand\vzero{\vect{0}}
+\newcommand\vone{\vect{1}}
+
+\newcommand\valpha{\vect{\alpha}}
+\newcommand\vbeta{\vect{\beta}}
+\newcommand\veps{\vect{\epsilon}}
+\newcommand\vdelta{\vect{\delta}}
+\newcommand\vtheta{\vect{\theta}}
+\newcommand\vsigma{\vect{\sigma}}
+\newcommand\vpi{\vect{\pi}}
+\newcommand\vlambda{\vect{\lambda}}
+
+% matrix variables (taken from macros by Rainer Gemulla)
+\newcommand\mA{\vect{A}}
+\newcommand\mB{\vect{B}}
+\newcommand\mC{\vect{C}}
+\newcommand\mD{\vect{D}}
+\newcommand\mE{\vect{E}}
+\newcommand\mF{\vect{F}}
+\newcommand\mG{\vect{G}}
+\newcommand\mH{\vect{H}}
+\newcommand\mI{\vect{I}}
+\newcommand\mJ{\vect{J}}
+\newcommand\mK{\vect{K}}
+\newcommand\mL{\vect{L}}
+\newcommand\mM{\vect{M}}
+\newcommand\mN{\vect{N}}
+\newcommand\mO{\vect{O}}
+\newcommand\mP{\vect{P}}
+\newcommand\mQ{\vect{Q}}
+\newcommand\mR{\vect{R}}
+\newcommand\mS{\vect{S}}
+\newcommand\mT{\vect{T}}
+\newcommand\mU{\vect{U}}
+\newcommand\mV{\vect{V}}
+\newcommand\mW{\vect{W}}
+\newcommand\mX{\vect{X}}
+\newcommand\mY{\vect{Y}}
+\newcommand\mZ{\vect{Z}}
+\newcommand\mzero{\vect{0}}
+
+\newcommand{\mPi}{{\ensuremath{\vect{\Pi}}}}
+\newcommand{\mSigma}{{\ensuremath{\vect{\Sigma}}}}
+\newcommand{\mLambda}{{\ensuremath{\vect{\Lambda}}}}
+
+% argmin, argmax
+\DeclareMathOperator*{\argmin}{argmin} % amsmath package required
+\DeclareMathOperator*{\argmax}{argmax} % amsmath package required
+
+% matrix operations
+\newcommand\xdiag{\operatorname{diag}}      
+\newcommand\diag[1]{\xdiag\left(#1\right)}    % diagonal matrix

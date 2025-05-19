@@ -1,0 +1,864 @@
+\documentclass[t]{beamer}
+
+% packages
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{numprint}
+\usepackage{amsxtra}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{color,colortbl}
+\usepackage{enumerate}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
+\input{../macros}
+
+% choose how your presentation looks.
+% for more themes, color themes and font themes, see:
+% http://deic.uab.es/~iblanes/beamer_gallery/index_by_theme.html
+
+\mode<presentation>
+{%
+	\usetheme{default}      % or try Darmstadt, Madrid, Warsaw, ...
+	\usecolortheme{default} % or try albatross, beaver, crane, ...
+	\usefonttheme{default}  % or try serif, structurebold, ...
+	\setbeamertemplate{navigation symbols}{}
+	\setbeamertemplate{caption}[numbered]
+	% For a numbered table of contents
+	\setbeamertemplate{section in toc}[sections numbered] 
+	% For slide numbers
+	\addtobeamertemplate{navigation symbols}{}{%
+	\usebeamerfont{footline}
+	\usebeamercolor[fg]{footline}
+	\hspace{1em}
+	\insertframenumber%/\inserttotalframenumber
+	}
+} 
+
+%% so table of content appears before each section, highlighting what's next
+%\AtBeginSection[]
+%{%
+%	\setbeamercolor{section in toc shaded}{fg=structure}
+%	\begin{frame}<beamer>
+%	  \frametitle{Outline}
+%	  \tableofcontents[currentsection]
+%	\end{frame}
+%}
+
+% adds title slides for each section
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\Huge\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+\title[Write your short title here]{Advanced Methods in Text Analytics}
+\subtitle{Exercise 01: ML Basics}
+\author{Daniel Ruffinelli}
+\institute{University of Mannheim}
+\date{FSS 2025}
+
+\begin{document}
+
+% no "Figure X" prefix in image captions when using the figure environment
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+
+\begin{frame}
+    \titlepage{}
+\end{frame}
+
+\begin{frame}{About These Tutorials}{}
+    \begin{itemize}
+        \item \textbf{Goals}
+              \begin{itemize}
+                  \item \emph{Reinforce/deepen} content from lectures
+                  \item \emph{Introduce new concepts} to support lecture content
+                  \item Get some hands-on experience with \emph{code}
+              \end{itemize}
+        \item \textbf{Tutorial slides}
+              \begin{itemize}
+                  \item These are the type of slides I'll use for tutorials
+                  \item They are mostly a copy of exercise sheets in slide
+                        format
+                  \item I often make notes on them during tutorials
+                  \item I can't guarantee notes are clear without being here
+                  \item I also want to promote that students come to tutorials
+                  \item So, \textbf{I will not make these slides publicly
+                            available}
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Mathematical Notation}{}
+    Notation we will use throughout the semester:
+    \begin{itemize}
+        \item Scalars: $a,b\in\bb{R}$
+        \item Vectors: $\vx,\vy\in\bb{R}^n$ (by default, vectors are all \emph{column}
+              vectors, i.e.\ size is $n\times 1$)
+        \item Matrices: $\mX,\mY\in\bb{R}^{m\times n}$
+        \item Scalar product: $a\vx\in\bb{R}^n$
+        \item Dot product: $\vx^\top\vy\in\bb{R}$ (some sources call this a scalar product)
+        \item Matrix-vector product: $\mX\vx\in\bb{R}^{m\times 1}$
+        \item Matrix-matrix product: $\mX^\top\mY\in\bb{R}^{n\times n}$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Machine Learning Basics}{Context}
+    \begin{itemize}
+        \item In machine learning, we typically develop models that can be
+              trained to perform
+              a specific task.
+        \item Formally, a model can be represented by a function
+              $f_{\vtheta}\colon \bb{R}^n\mapsto \bb{R}^m$, where
+              $\vtheta\in\bb{R}^k$ are the parameters of the model.
+        \item For a given $\vx\in\bb{R}^n$, we can write this as follows:
+              $f(\vx\mid\vtheta) = \vy$.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Machine Learning Basics}{Question a)}
+    What part of the basic machine learning pipeline do the symbols in the
+    formal description above denote?
+    Specifically:
+    \begin{enumerate}[(i)]
+        \item What does $\vx$ represent? And each of $\vx_i$?
+        \item What is $\vy$ and what is it used for?
+        \item What is $f(\vx\mid\vtheta)$? Explain this notation.
+        \item What is a possible value for the input dimension $n$?
+              And for the output dimension $m$? What factors determine
+              these values?
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Machine Learning Basics}{Answer a)}
+    \begin{enumerate}[(i)]
+        \item $\vx$ is input vector, typically represents point in some dataset.
+              Input vectors often referred to as \emph{feature vectors}, their
+              corresponding vector space $\bb{R}^n$ as a \emph{feature space}.
+              These names derived from each $\vx_i$ being referred to
+              as a \emph{feature}.
+        \item Output of our function, used for inference or to make
+              predictions with the model.
+        \item This is read as ``function $\vh$ of $\vx$ \emph{given}
+              parameters $\vtheta$''.
+        \item $n$ can take any value, typically in $\bb{N}$, this is
+              typically a design decision, e.g.\ number of features we
+              manually crafted, number of PCA components used for
+              dimensionality reduction, the size of each hidden layer
+              in  a feed-forward neural networm (FNN). \\
+              $m$ can also take any value in $\bb{N}$, i.e.\
+              $\vy\in\bb{R}^d$, i.e.\ $d$ not necessarily equal to
+              $n$, less a design decision, more a property of
+              the task we are modeling. E.g.\ for binary classification,
+              we typically have $m=1$, for classification
+              problem with $k$ classes, $m=k$.
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Machine Learning Basics}{Question b)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item What are the common types of machine learning tasks in
+                        natural language processing based on the output a model
+                        produces?
+                  \item What does the output look like for each of these task
+                        types?
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item \textbf{Classification:} output is categorical, e.g.\
+                        part-of-speech (POS) tagging or next-word prediction.
+                  \item \textbf{Regression:} output is a real number, e.g.\ in
+                        automated essay scoring.
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Machine Learning Basics}{Question c)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item How does \textbf{``learning''} take place in machine
+                        learning?
+                  \item What is the \textbf{goal} of this learning process?
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item \textbf{Learning:} estimating parameters $\vtheta$
+                        of function $f$ in order to solve an optimization
+                        problem, usually minimizing some training objective
+                  \item \textbf{Goal:} not to solve this optimization problem,
+                        but to perform well on unseen data, i.e.\ to perform a
+                        task well \emph{generally}.
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Machine Learning Basics}{Question d)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item What are the \textit{hyperparameters} of a machine
+                        learning model?
+                        Provide an example.
+                  \item How do we find the optimal values for a model's
+                        hyperparameters?
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item Parameters that we do not learn, but manually set.
+                  \item These are often not parameters of the model, but they
+                        related to the training setting.
+                  \item For example:
+                        \begin{itemize}
+                            \item Using a bias or not
+                            \item The choice of a loss function
+                            \item The choice of a model
+                        \end{itemize}
+                  \item We typically find useful values for hyperparameters by
+                        conducting grid search or random search, although more
+                        involved methods exist.
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Machine Learning Basics}{Question e)}
+    \begin{itemize}
+        \item Why do machine learning pipelines typically rely on
+              datasets split into three parts: \textbf{training},
+              \textbf{validation}, and \textbf{test} sets?
+        \item What is the \textbf{role} of each of these data splits?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Machine Learning Basics}{Answer e)}
+    \begin{itemize}
+        \item Related to goal of ML: models should
+              generalize well.
+        \item Datasets usually split into \textbf{training} and
+              \textbf{test} splits, so we may estimate parameters of our
+              models on training data, them evaluate our models on
+              unseen data using the test set.
+        \item But we make decisions before training (hyperparameters)
+        \item Generally, we want know how these decisions impact our
+              model, but when comparing different hyperparameter
+              settings on test data, we would identify which one
+              works best on \emph{that} test set, which would make it
+              no longer unseen.
+        \item \textbf{Validation} split exists to allow for model
+              selection without compromising test data, i.e.\ it's
+              evaluation data we can use to train various models under
+              different settings and choose the settings that give the
+              best performace.
+        \item To ensure all splits come from same distribution, splits
+              constructed by shuffling a dataset. Then for each split, randomly
+              sampling examples without replacement.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Machine Learning Basics}{Question f)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item Briefly explain the concepts of \textbf{underfitting}
+                        and \textbf{overfitting}.
+                  \item Why do they often occur?
+                  \item How may we recognize them in practice?
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item \textbf{Underfitting}: model is too simple to perform
+                        well on a task, even on the data it is trained on.
+                  \item \textbf{Overfitting:} model is capable of
+                        performing task well to the point it learns
+                        all the detail/noise in training data, while still not
+                        performing well on unseen data
+                  \item We can \emph{measure underfitting} by looking at the
+                        model's performance on the training set, e.g.\ compute
+                        accuracy on training set in a classification setting
+                  \item We can \textbf{measure overfitting} by looking at
+                        model performance on unseen data, e.g.\ a validation
+                        split, and contrasting it with its performance on
+                        training data.
+                  \item High performance during training but low performance on
+                        unseen data: \emph{clear indication of overfitting},
+                        often not so straightforward, this gap is common,
+                        baselines required
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Context}
+    \begin{itemize}
+        \item Linear classifiers are those that model the classification task as
+              a \emph{linear combination} of input features and model
+              parameters, where the model parameters act as the \emph{weights} of
+              that linear combination.
+        \item In this task, we review some log-linear classifiers commonly used
+              in NLP.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Question a)}
+    \begin{itemize}
+        \item Recall that the logistic regression model is a linear classifier
+              designed for binary classification.
+        \item We introduced this model in the
+              lectures with the following equations:
+              \begin{align}
+                  p(y=1\mid x) & = \sigma(w x + b)     \\
+                  p(y=0\mid x) & = 1 - \sigma(w x + b)
+              \end{align}
+              where $x,y,w,b\in\bb{R}$, $\vtheta=(w,b)$ are model parameters,
+              $x$ is the input and $\sigma$ is the logistic (sigmoid) function
+              defined as follows:
+              \begin{align}\label{eq:sigmoid}
+                  \sigma(z) = \frac{\exp{(z)}}{1 + \exp{(z)}}
+              \end{align}
+        \item Give a formal expression for a logistic regression model that
+              takes as input a vector $\vx\in\bb{R}^n$ and that does not use a
+              bias term.
+        \item How many parameters does this model have?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Answer a)}
+    \begin{itemize}
+        \item Given that logistic regression is a linear classifier, a logistic
+              regression model that takes an $n$-dimensional vector as input,
+              and does not use a bias, can be formally described as follows:
+              \begin{align}
+                  p(y=1\mid x) & = \sigma\left(\sum_{i=1}^{n}w_i\cdot x_i\right) \\
+                  p(y=0\mid x) & = 1-p(y=1),
+              \end{align}
+              where $w_i\in\bb{R}$ is the parameter (weight) that corresponds to
+              input feature $x_i$.
+        \item Being a linear combination of the input features, this model has
+              as many parameters as there are features in the input vector.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Question b)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item If not done already, write the same logistic regression
+                        model from the previous question but in vectorized form,
+                        i.e.\ as a function of its parameter vector $\vw$.
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item We have:
+                        \begin{align}
+                            p(y=1\mid x) & = \sigma(\vw^\top\vx).
+                        \end{align}
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Question c)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item Now add a bias term to your logistic regression model.
+                  \item Can we still write it in vectorized form?
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item We have:
+                        \begin{align}
+                            p(y=1\mid x) & = \sigma\left(\sum_{i=1}^{n}(w_i\cdot x_i) + b\right) \\
+                            p(y=0\mid x) & = 1-p(y=1),
+                        \end{align}
+                        where $b\in\bb{R}$ is the bias term.
+                  \item We can still write this in vectorized form, but to do
+                        this comfortably we make use of what we call a
+                        \emph{bias feature} $x_0=1$, which acts as the
+                        coefficient for the bias weight in the linear
+                        combination. That is:
+                        \begin{align}
+                            p(y=1\mid x) & = \sigma(\vw^\top\vx).
+                        \end{align}
+                        where $\vx\in\bb{R}^{n+1}$, i.e.\
+                        $\vx=(x_o, x_1, \ldots, x_n)$.
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Question d)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item \emph{Log}-linear models are those that model
+                        classification as a linear combination of $\vx$ and
+                        $\vw$ with the exponential function applied to it.
+                  \item Give a formal expression for a \emph{general} log-linear
+                        model $f(y\mid\vx)$ designed for binary classification
+                        and parameterized by $\vw$, where $\vx,\vw\in\bb{R}^n$.
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item We have:
+                        \begin{align}
+                            f(y=1\mid\vx) & = \exp(\vw^\top\vx) = e^{\vw^\top\vx}, \\
+                            f(y=0\mid\vx) & = 1 - f(y=1\mid\vx).
+                        \end{align}
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Question e)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item Now generalize your answer from the previous question so
+                        the model is designed for \emph{multi-class}
+                        classification.
+                  \item How many parameters does this model have?
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item For $c\in C$ classes, we have:
+                        \begin{align}\label{eq:log_linear}
+                            f(y=c\mid\vx) & = \exp(\vw_c^\top\vx) = e^{\vw_c^\top\vx},
+                        \end{align}
+                        where $\vw_c$ are the parameters used for making
+                        predictions for class $c$.
+                        That is, this general log-linear model has as many
+                        parameters as there are input features
+                        \emph{for each class} $c\in C$.
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Question f)}
+    \begin{itemize}
+        \item If not done already, rewrite your model from the
+              previous question so it's a probabilistic model, i.e.\
+              for each input vector $\vx$ and class $c$, the models
+              provides the probability that the input belongs to that
+              given class $c$.
+        \item Can you do this in vectorized form? I.e.\ can you define
+              a function that returns a distribution over classes for
+              a given input vector $\vx$?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Answer f) (1)}
+    \begin{itemize}
+        \item We can accomplish this by normalizing the output of the model, so
+              that it represents a probability distribution over the classes.
+        \item Concretely, we have:
+              \begin{align}\label{eq:softmax}
+                  p(y=c\mid\vx) & = \frac{\exp(\vw_c^\top\vx)}{\sum_{c'\in C}\exp(\vw_{c'}^\top\vx)},
+              \end{align}
+              where $C$ is the set of classes in our classification task.
+
+        \item Eq.~\ref{eq:softmax} is known as a \emph{softmax function}, which
+              gives the name to this multi-class log-linear model: softmax
+              regression.
+        \item Note that given input vector $\vx$ and class $c$, the function
+              returns a single probability value.
+        \item That means, for a given input vector
+              $\vx$, we can get an entire ``softmax distribution'' over classes
+              by computing this function for all classes $c\in C$.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Answer f) (2)}
+    \begin{itemize}
+        \item Then, by normalizing each entry in that vector as with
+              Eq.~\ref{eq:softmax}, we get a probability vector $\vy\in\bb{R}^C$
+              that contains the distribution over all classes, i.e.\ all
+              of its entries add up to 1.
+        \item That is:
+              \begin{align}
+                  \vy = softmax(\vl),
+              \end{align}
+              where the $i$-th component of $\vy$ is given by:
+              \begin{align}
+                  \vy_i = \frac{e^{l_i}}{\sum_{j=1}^{C}e^{l_j}}.
+              \end{align}
+        \item This is typically the way the softmax function is represented in
+              vectorized form, a very interpretable output
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Question g)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item Let's put it all together now. Given
+                        $\mX\in\bb{R}^{m\times n}$ that represents $m$ examples
+                        of $n$ dimensions, write a formal expression for a
+                        general log-linear model designed for multi-class
+                        classification over $C$ classes
+                        \emph{in vectorized form} (assume no biases).
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item Let $\mW\in\bb{R}^{n\times C}$ be parameters of our
+                        model such that column $\vw_i$ corresponds to class
+                        $i\in C$.
+                  \item Using our vectorized softmax function from the previous
+                        question, we have:
+                        \begin{align}
+                            \mY = softmax(\mX\mW),
+                        \end{align}
+                        where we assume our softmax operation is applied
+                        row-wise.
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Log-linear Classifiers}{Question h)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item Can you guess why we use \emph{log}-probabilities in
+                        log-linear models instead of just probabilities as in
+                        linear classifiers?
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item There are a few reasons for this, but in short, there
+                        are some computational reasons, and some statistical
+                        reasons.
+                  \item The computational reasons are (i) it simplifies the math
+                        and therefore computations, e.g.\ when computing
+                        likehoods of multiple data points, and (ii) it helps to
+                        avoid numerical underflow issues that can occur when
+                        multiplying many probabilities together.
+                  \item The main statistical reason is that it makes the model
+                        more interpretable, as it can be related to concepts
+                        like odds and independence.
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Context}
+    \begin{itemize}
+        \item In this task, we are interested in training a probabilistic
+              log-linear model, like those from the previous task, using maximum
+              likelihood estimation (MLE).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Question a)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item In MLE, we aim to maximize the likelihood of a model
+                        given some data.
+                  \item Let $X=\{x_1, x_2, \ldots, x_n\}$ be a dataset of $n$
+                        examples and $p$ a probabilistic log-linear model
+                        parameterized by $\vw\in\bb{R}^d$ and designed for
+                        binary classification.
+                  \item Given the following joint distribution of the data as
+                        given by the model:
+                        \begin{align}
+                            p(X\mid\vw) = p(x_1, x_2, \ldots, x_n),
+                        \end{align}
+                        rewrite this expression assuming that all examples are
+                        independent and identically distributed (i.i.d.).
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item We have:
+                        \begin{align}
+                            p(X\mid\vw) = p(x_1\mid\vw)p(x_2\mid\vw)\ldots p(x_n\mid\vw) = \prod_{i=1}^{n}p(x_i\mid\vw).
+                        \end{align}
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Question b)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item For clarity, let $X_{pos}$ be the set examples from the
+                        positive class, and $X_{neg}$ the set of examples from
+                        the negative class.
+                  \item Rewrite your answer from the previous question as a
+                        function of $X_{pos}$ and $X_{neg}$.
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item We have:
+                        \begin{align}
+                            p(X\mid\vw) = \prod_{x_p\in X_{pos}}p(x_p\mid\vw)\prod_{x_n\in X_{neg}}\left(1 - p(x_n\mid\vw)\right).
+                        \end{align}
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Question c)}
+    \begin{itemize}
+        \item \textbf{Question:}
+              \begin{itemize}
+                  \item Write the corresponding likelihood function $\set{L}$
+                        for the model $p$ described in your previous answer.
+              \end{itemize}
+              \pause
+        \item \textbf{Answer:}
+              \begin{itemize}
+                  \item We have:
+                        \begin{align}
+                            \set{L}(\vw\mid X) = \prod_{x_p\in X_{pos}}p(x_p\mid\vw)\prod_{x_n\in X_{neg}}\left(1 - p(x_n\mid\vw)\right).
+                        \end{align}
+              \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Question d)}
+    \begin{itemize}
+        \item For reasons discussed in the previous task, we often
+              work with log-probabilities instead of probabilities.
+        \item Write the log-likelihood function $\set{LL}$ for the
+              model $p$.
+        \item Use $\ln$ throughout.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Answer d)}
+    \begin{itemize}
+        \item We have:
+              \begin{align}
+                  \set{LL}(\vw\mid X) & = \ln p(X\mid\vw)                                                                                                            \\
+                                      & = \ln \left(\prod_{i=1}^{n}p(x_i\mid\vw)\right)                                                                              \\
+                                      & = \ln \left(\prod_{x_p\in X_{pos}}p(x_p\mid\vw)\prod_{x_n\in X_{neg}}\left(1 - p(x_n\mid\vw)\right)\right)                   \\
+                                      & = \sum_{x_p\in X_{pos}}\ln p(x_p\mid\vw) + \sum_{x_n\in X_{neg}}\ln\left(1 - p(x_n\mid\vw)\right). \label{eq:log_linear_mle}
+              \end{align}
+        \item This is the general expression we maximize when training
+              log-linear models with MLE using the i.i.d. assumption.
+        \item We want to find value of $\vw$ that maximizes
+              Eq.~\ref{eq:log_linear_mle}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Question e)}
+    \begin{itemize}
+        \item Assume $p$ is a logistic regression model and each data
+              point in $X$ is represented by $\vx_i\in\bb{R}^d$.
+        \item Rewrite the log-likelihood function you wrote in the
+              previous answer by including the logistic regression
+              model explicitly, i.e.\ using the sigmoid function in
+              Eq.~\ref{eq:sigmoid}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Answer e)}
+    \begin{itemize}
+        {\small
+        \item We have:
+              \begin{align}
+                  \set{LL}(\vw\mid X) & = \sum_{x_p\in X_{pos}}\ln\sigma(\vw^\top\vx) + \sum_{x_n\in X_{neg}}\ln\left(1 - \sigma(\vw^\top\vx)\right)                                                          \\
+                                      & = \sum_{x_p\in X_{pos}}\ln \frac{e^{\vw^\top\vx_p}}{1 + e^{\vw^\top\vx_p}} + \sum_{x_n\in X_{neg}}\ln\left(1 - \frac{e^{\vw^\top\vx_n}}{1 + e^{\vw^\top\vx_n}}\right) \\
+                                      & = \sum_{x_p\in X_{pos}}\ln \frac{e^{\vw^\top\vx_p}}{1 + e^{\vw^\top\vx_p}} + \sum_{x_n\in X_{neg}}\ln\left(\frac{1}{1 + e^{\vw^\top\vx_n}}\right)                     \\
+                                      & = \sum_{x_p\in X_{pos}} \left(\vw^\top\vx_p - \ln(1 + e^{\vw^\top\vx_p})\right) - \sum_{x_n\in X_{neg}}\ln\left(1 + e^{\vw^\top\vx_n}\right).
+              \end{align}
+              }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Question f)}
+    \begin{itemize}
+        \item As seen in the MLE example from the lecture, we will need to
+              compute the gradient to maximize our expression.
+        \item Compute the gradient of the likelihood function for your logistic
+              regression model w.r.t.\ model parameters $\vw$.
+        \item That is, $\nabla_{\vw}\set{LL}$ where $\nabla$ is defined as:
+              \begin{align}\label{eq:gradient}
+                  \nabla_{\vw}\set{LL} = \left[\frac{\partial\set{LL}}{\partial w_1},
+                      \frac{\partial\set{LL}}{\partial w_2}, \ldots, \frac{\partial\set{LL}}{\partial w_d}\right].
+              \end{align}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Answer f)}
+    \begin{itemize}
+        {\tiny
+        \item Let $\nabla=\nabla_{\vw}$. We have:
+              \begin{align}
+                  \nabla\set{LL} & = \nabla \left(\sum_{x_p\in X_{pos}} \left(\vw^\top\vx_p - \ln(1 + e^{\vw^\top\vx_p})\right) - \sum_{x_n\in X_{neg}}\ln\left(1 + e^{\vw^\top\vx_n}\right)\right)                           \\
+                                 & = \nabla\sum_{x_p\in X_{pos}} \left(\vw^\top\vx_p - \ln(1 + e^{\vw^\top\vx_p})\right) - \nabla\sum_{x_n\in X_{neg}}\ln\left(1 + e^{\vw^\top\vx_n}\right)                                   \\
+                                 & = \sum_{x_p\in X_{pos}} \left(\vx_p - \nabla\ln(1 + e^{\vw^\top\vx_p})\right) - \sum_{x_n\in X_{neg}}\nabla\ln\left(1 + e^{\vw^\top\vx_n}\right)                                           \\
+                                 & = \sum_{x_p\in X_{pos}} \left(\vx_p - \frac{e^{\vw^\top\vx_p}}{1 + e^{\vw^\top\vx_p}}\vx_p\right) - \sum_{x_n\in X_{neg}}\left(\frac{e^{\vw^\top\vx_n}}{1 + e^{\vw^\top\vx_n}}\vx_n\right) \\
+                                 & = \sum_{x_p\in X_{pos}} \left(1 - \frac{e^{\vw^\top\vx_p}}{1 + e^{\vw^\top\vx_p}}\right)\vx_p - \sum_{x_n\in X_{neg}}\left(\frac{e^{\vw^\top\vx_n}}{1 + e^{\vw^\top\vx_n}}\vx_n\right)     \\
+                                 & = \sum_{x_p\in X_{pos}} \left(1 - \sigma(\vw^\top\vx_p)\right)\vx_p - \sum_{x_n\in X_{neg}}\sigma(\vw^\top\vx_n)\vx_n.
+              \end{align}
+              }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Question g) (1)}
+    \begin{itemize}
+        \item When MLE has no closed-form solution (often), we use
+              gradient-based methods, e.g.\ gradient descent (GD):
+              {\small
+              \begin{algorithm}[H]
+                  \caption{Gradient Descent}
+                  \label{alg:gd}
+                  \begin{algorithmic}[1]
+                      \Procedure{Gradient Descent}{Dataset $X$, Objective function $J$, Model $p_{\vw}$, Learning rate $lr$, Number of Epochs $N$}
+                      \State $\vw\leftarrow random()$ \qquad   // random weight initialization
+                      \For{$i \in\{1,\ldots N\}$}
+                      \State $g_i\leftarrow \nabla_{\vw}J(p_{\vw}(X))$
+                      \State $\vw_{i+1}\leftarrow \vw_i - lr \cdot g_i$ \qquad   // update rule
+                      \EndFor
+                      \State{\textbf{Return} $p_{\vw}$}
+                      \EndProcedure
+                  \end{algorithmic}
+              \end{algorithm}
+              }
+        \item Given previous questions, $p_{\vw}$ is logistic regression, $J$ is
+              answer to question (e), $g$ is Eq.~\ref{eq:gradient}.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Question g) (2)}
+    \begin{itemize}
+        \item Modify Algorithm~\ref{alg:gd} so it performs (i) stochastic
+              gradient descent (\textbf{SGD}) and (ii) mini-batch gradient
+              descent (\textbf{BGD}).
+              Recall that the former uses a single example for each update, and
+              the latter a subset of the data for each update.
+        \item Make sure you define each new function or component you use in the
+              algorithm.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Answer g) (1)}
+    \begin{itemize}
+        \item \textbf{SGD}:
+              {\small
+              \begin{algorithm}[H]
+                  \caption{Stochastic Gradient Descent}
+                  \label{alg:sgd}
+                  \begin{algorithmic}[1]
+                      \Procedure{Gradient Descent}{Dataset $X$, Objective function $J$, Model $p_{\vw}$, Learning rate $lr$, Number of Epochs $N$}
+                      \State $\vw\leftarrow random()$ \qquad   // random weight initialization
+                      \For{$i \in\{1,\ldots N\}$} \qquad   // we iterate over epochs
+                      \For{$x_i\in X$} \qquad   // we iterate over the dataset
+                      \State $g_i\leftarrow \nabla_{\vw}J(p_{\vw}(x_i))$
+                      \State $\vw_{i+1}\leftarrow \vw_i - lr \cdot g_i$ \qquad   // update rule
+                      \EndFor
+                      \EndFor
+                      \State{\textbf{Return} $p_{\vw}$}
+                      \EndProcedure
+                  \end{algorithmic}
+              \end{algorithm}
+              }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Answer g) (2)}
+    \begin{itemize}
+        \item \textbf{BGD}:
+              {\small
+              \begin{algorithm}[H]
+                  \caption{Batch Gradient Descent}
+                  \label{alg:bgd}
+                  \begin{algorithmic}[1]
+                      \Procedure{Gradient Descent}{Dataset $X$, Objective function $J$, Model $p_{\vw}$, Learning rate $lr$, Number of Epochs $N$, Batch Size $b$}
+                      \State $\vw\leftarrow random()$ \qquad   // random weight initialization
+                      \For{$i \in\{1,\ldots N\}$}
+                      \For{$batch = [x_1,\ldots,x_b]$ where $batch$ is sampled without replacement from $X$}
+                      \State $g_i\leftarrow \nabla_{\vw}J(p_{\vw}(batch))$
+                      \State $\vw_{i+1}\leftarrow \vw_i - lr \cdot g_i$ \qquad   // update rule
+                      \EndFor
+                      \EndFor
+                      \State{\textbf{Return} $p_{\vw}$}
+                      \EndProcedure
+                  \end{algorithmic}
+              \end{algorithm}
+              }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Answer g) (3)}
+    \begin{itemize}
+        \item Note that we still rely on gradients that need to be computed
+              every time we update our parameters.
+        \item But we don't compute gradients manually when working with these
+              models.
+        \item This is generally handled by tools
+              like \href{https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html}{Autograd}.
+        \item But it's important to understand the process underlying the
+              training of models, despite it being automatic, so we can reason
+              about model performance as a function of its training process.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Question h)}
+    \begin{itemize}
+        \item Assume that the function $\text{shuffle}(X)$ randomly shuffles the
+              examples in dataset $X$.
+        \item How would you modify your BGD algorithm to include this step?
+        \item Do you know why shuffling is important?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Answer h) (1)}
+    \begin{itemize}
+        \item \textbf{BGD}:
+              {\tiny
+              \begin{algorithm}[H]
+                  \caption{Batch Gradient Descent With Shuffling}
+                  \label{alg:bgd_shuffled}
+                  \begin{algorithmic}[1]
+                      \Procedure{Gradient Descent}{Dataset $X$, Objective function $J$, Model $p_{\vw}$, Learning rate $lr$, Number of Epochs $N$, Batch Size $b$}
+                      \State $\vw\leftarrow random()$ \qquad   // random weight initialization
+                      \For{$i \in\{1,\ldots N\}$}
+                      \For{$batch = [x_1,\ldots,x_b]$ where $batch$ is sampled without replacement from $X$}
+                      \State $g_i\leftarrow \nabla_{\vw}J(p_{\vw}(batch))$
+                      \State $\vw_{i+1}\leftarrow \vw_i - lr \cdot g_i$ \qquad   // update rule
+                      \EndFor
+                      \State shuffle($X$)
+                      \EndFor
+                      \State{\textbf{Return} $p_{\vw}$}
+                      \EndProcedure
+                  \end{algorithmic}
+              \end{algorithm}
+              }
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Training Log-linear Classifiers}{Answer h) (2)}
+    \begin{itemize}
+        \item While GD considers the entire dataset when computing gradients,
+              and SGD treats all examples equally, BGD uses a subset of the
+              dataset to compute each gradient.
+        \item Shuffling the dataset at the end of each epoch is a common
+              practice to avoid using the same subset of examples for each BGD
+              update, as this may bias the training process in favor of some
+              examples over others.
+        \item BGD is by far the most method used in NLP training.
+        \item It has been empirically shown that SGD and BGD can converger
+              faster than GD, but they can also be more unstable.
+    \end{itemize}
+\end{frame}
+
+\end{document}

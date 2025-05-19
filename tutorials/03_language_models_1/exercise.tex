@@ -1,0 +1,209 @@
+\documentclass[11pt,a4paper]{article}
+
+% packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{fullpage} 
+\usepackage{tabularx}
+\usepackage{amssymb,amstext,amsmath}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{algorithmic}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{url}
+\usepackage[colorlinks=true,bookmarks,unicode=true,pdftex,a4paper]{hyperref}
+\usepackage[round]{natbib}
+\usepackage[usenames,dvipsnames]{color, xcolor}
+\headsep1cm
+
+% macros
+\input{macros}
+
+% header and footer
+\lhead{Advanced Methods in Text Analytics, FSS2025}
+\chead{}
+\rhead{\thepage\ }
+\cfoot{}
+\pagestyle{fancy}
+
+\title{Advanced Methods in Text Analytics \\ 
+Exercise 3: Language Models - Part 1}
+\author{Daniel Ruffinelli}
+\date{FSS 2025}
+
+\begin{document}
+\maketitle
+
+\section{Language Modeling}
+
+Language models are able to predict the next word in a given sequence of $n$
+words. Similarly, language models can give the probability of a given
+sequence of $n$ words.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Give a formal expression for the probability of word $n+1$ given the
+          previous $n$ words in a sequence.
+    \item Give a formal expression for the probability of a sequence of $n$
+          words and specify how this probability is computed using the marginal
+          probabilities of each word in the sequence.
+    \item What is the main assumption that n-gram language models make?
+          What is the name of this assumption?
+          What is a bigram model? And a trigram model?
+          Give the expressions for computing the probability of a sequence of
+          words (i.e. your answer to b)) using a bigram model, and a trigram
+          model.
+    \item How is the probability of predicting the next word given previous
+          words \emph{estimated} in n-gram models?
+    \item What are some of the problems that n-gram language models have?
+    \item Neural language models can address some of the issues with n-gram
+          models.
+          Describe the neural language model designed by
+          \href{https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf}{\underline{Bengio et al.}},
+          which was discussed in the lecture.
+          What kind of neural network was it? How many hidden layers did it
+          have? How did they represent the input sequence? How did it compute
+          the relevant probabilities for language modeling?
+          How was it parameterized? And how many parameters does it have with a
+          vocabulary $V$ and word embedding of size $d$?
+          For simplicity, you may ignore the optional linear layer and all
+          biases.
+    \item What is \emph{self-supervision}? Describe the self-supervised training
+          approach used by Bengio et al. to train their neural language model.
+    \item What problems in n-gram models were no longer an issue with neural
+          language models? And what problems still persisted with such models?
+          Explain why the existing limitations are indeed limitations.
+\end{enumerate}
+
+\newpage
+\section{Language Model Evaluation}
+
+In this task, we discuss how language models (LMs) can be evaluated.
+
+\begin{enumerate}[label=(\alph*)]
+    \item LMs are often used as part of various \emph{downstream tasks}.
+          Give two examples of downstream tasks that may use LMs in their
+          pipeline, and describe how may use LMs.
+    \item LMs can be evaluated extrinsically and intrinsically.
+          Describe the difference between intrinsic and extrinsic evaluation.
+          Discuss some advantages and disadvantages of each.
+    \item Say you are tasked with designing the simplest
+          intrinsic evaluation for language models using the basic machine
+          learning principle of \emph{held-out data} and a given text
+          corpus.
+          What sort of evaluation would you propose?
+    \item The most common form of intrinsic evaluation of language models is
+          computing its \emph{perplexity} on held-out data.
+          Perplexity is defined as follows:
+          \begin{align*}
+              ppl(w_1,w_2,\ldots,w_n) = p(w_1,w2,\ldots,w_n)^{-\frac{1}{n}},
+          \end{align*}
+          where $p$ is the \emph{likelihood} of held-out sequence
+          $x_1, x_2, \ldots, x_n$.
+          Describe the intuition of perplexity from the perspective of the
+          likelihood of the data. How does one change when the other changes?
+    \item Assume a uniform unigram model over some vocabulary $V$. What
+          probability does such a model assign to each word in the vocabulary?
+          Compute the likelihood of this model and use it to compute its
+          perplexity over a held-out sequence of $n$ words.
+\end{enumerate}
+
+\section{Recurrent Neural Networks}
+
+In this section, we review some basic concepts about RNNs, including how they
+can be used to implement language models.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Describe the components of an RNN and discuss how it differs from
+          fully-connected neural networks. What are the parameters of an RNN?
+          Are RNNs deep? In what way(s)?
+    \item How can a RNN be used for a sequence classification task? And what
+          about for a task where each token in the sequence requires a predicted
+          label, e.g.\ part-of-speech (POS) tagging? Describe the input, output
+          and general architecture of the model.
+    \item How can RNNs be used for language modeling? Describe the model's
+          architecture.
+          What is the fundamental problem that RNNs solve over fully-connected
+          neural networks for language modeling?
+    \item What are bidirectional RNNs? What are their advantages and
+          disadvantages compared to standard (unidimensional) RNNs?
+    \item Describe the main problem with RNNs and how LSTMs were designed to
+          address this issue. Give a high-level intuition for each of the gates
+          in an LSTM unit.
+    \item Describe an encoder-decoder architecture and explain how it can be
+          used for machine translation, i.e.\ the task of predicting a sequence
+          of words in a target language given a sequence of words in a source
+          language.
+          When implementing such an architecture with RNNs, what is the input
+          and output of the hidden state in the encoder at each time step? And
+          in the decoder?
+\end{enumerate}
+
+\section{Sampling for Text Generation}
+
+An important aspect of using language models to (autoregressively) generate text
+is the step of \emph{sampling} the next word from the distribution over words in
+our vocabulary that is produced by a language model.
+
+\begin{enumerate}[label=(\alph*)]
+    \item What is autoregressive text generation? What are its advantages
+          compared non-autoregressive text generation? And its disadvantages?
+    \item In a machine translation setting, let $X = \{x_1, x_2, \ldots, x_n\}$
+          be the input sequence in some source language,
+          $Y = \{y_1, y_2, \ldots, y_m\}$ the output sequence in some target
+          language, and $p(y_t|X,\vtheta)$ the distribution for the $t$-th word
+          in a non-autoregressive setting using a model parameterized by
+          $\vtheta$.
+          Give the corresponding expression for $p$ in an autoregressive model.
+    \item Let $\operatorname{sample}(p)$ be a function to sample a word
+          from the autoregressive expression for $p$ you provided in the
+          previous question, and $<s>, </s>$ be the start-of-sequence and
+          end-of-sequence tokens, respectively.
+          Write an algorithm in pseudocode to autoregressively generate a
+          sequence of words of arbitrary length.
+          % TODO this question about the algorithm is not so correct, because
+          % the sample function should take a distribution over words as input,
+          % not the probability value of some specific word!
+          % So sample should take as input the sequence only
+    \item The most straightforward way to implement the \emph{sample}
+          function used in the previous question is by choosing the word with
+          the highest probability. This is known as \emph{greedy} sampling.
+          Can you think of advantages and disadvantages to such an approach?
+          Use the following two incomplete sentences to reason about this.
+          \begin{enumerate}[label=(\roman*)]
+              \item The capital of Germany is $\ldots$
+              \item The title of my talk is $\ldots$
+          \end{enumerate}
+    \item Another way to implement the \emph{sample} function is by
+          \emph{randomly} sampling from $p$.
+          This means we sample a word $w$ with probability $p(w)$, so that words
+          with higher probability get sampled more often, while words with lower
+          probability get sampled less often.
+          Can you think of advantages and disadvantages to such an approach?
+          \textbf{Hint:} the size of the vocabulary is often very large, and for
+          a given input sequence, the distribution over words is very skewed.
+    \item Can you think of an approach that can be used to sample from the
+          distribution over words in a more balanced way compared to both
+          \emph{greedy} and \emph{random} sampling?
+          What are its advantages and disadvantages compared to the approaches
+          described in the previous questions?
+    \item \emph{Temperature} sampling is another approach, where instead of
+          truncating a model distribution, we reshape it.
+          It is defined in the context of softmax distributions as follows:
+          \begin{align*}
+              \vy = \operatorname{softmax}\left(\frac{\vu}{\tau}\right),
+          \end{align*}
+          where $\vu$ is the unnormalized distribution over words, i.e.\
+          a vector of logits, $\tau$ is the temperature parameter, and we do an
+          element-wise division with it.
+          Describe the impact that different values of $\tau$ have over the
+          resulting model distribution that we will then use to sample the next
+          word from.
+          Specifically, how does the distribution change as $\tau$ is less than
+          1 and approaches zero? And as it approaches infinity?
+\end{enumerate}
+
+\end{document}

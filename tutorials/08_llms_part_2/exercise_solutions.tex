@@ -1,0 +1,99 @@
+\documentclass[11pt,a4paper]{article}
+
+% packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{fullpage} 
+\usepackage{tabularx}
+\usepackage{amssymb, amstext, amsmath}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{algorithmic}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{url}
+\usepackage[bookmarks,unicode=true,pdftex,a4paper]{hyperref}
+\usepackage[round]{natbib}
+\usepackage[usenames,dvipsnames]{color, xcolor}
+\headsep1cm
+
+% macros
+\input{macros}
+
+% new commands
+\newcommand\op[1]{\operatorname{#1}}
+
+% header and footer
+\lhead{Advanced Methods in Text Analytics, FSS 2025}
+\chead{}
+\rhead{\thepage\ }
+\cfoot{}
+\pagestyle{fancy}
+
+\title{Advanced Methods in Text Analytics \\ 
+Exercise 8: Large Language Models - Part 2\\
+\textbf{Solutions}}
+\author{Daniel Ruffinelli}
+\date{FSS 2025}
+
+\begin{document}
+\maketitle
+
+\section{Making Predictions with LLMs}
+
+\begin{enumerate}[label=(\alph*)]
+    \item TODO: num layers, hidden sizes and vocab sizes of each of the models.
+    \item TODO: what is BatchEncoding object, what is input\_ids (token ids),
+          what is attention mask, how many tokens are used to encode your
+          prompt? len(input\_ids)
+    \item TODO: what is CausalLMOutputWithPast, what is logits, what is
+          past\_key\_values. Logits are of size
+          (batch size, input sequence length, vocab size)
+    \item TODO: See code, explain params in batch decode, tokens make sense,
+          difference between models?
+          This function is useful for sampling, e.g. greedy, top k.
+\end{enumerate}
+
+\section{Prompting}
+
+\begin{enumerate}[label=(\alph*)]
+    \item TODO: difference gpt vs llama, output of gpt is always new line,
+          likely wants to create a sentence, so greedy on first token does not
+          work, we would have to decode more next tokens as well, answer Paris
+          contained in top 10 tokens for gpt, but how to use it? Top k sampling?
+          It's a factual question, we want a deterministic answer.
+          If we try a more ICL-like prompt, then the top token is the correct
+          answer, but this too is brittle because of tokenization issues, e.g.
+          Rome is often tokenized with a space, so we need to add the space to
+          the prompt, and this is not consistent across models or examples.
+          Try to out!
+    \item TODO: ICL prompt has instruction, demonstration and question.
+    \item TODO: are all tasks clear with zero shot? Which ones and which ones
+          not? Do both models understand the tasks? What tasks become clear with
+          demonstrations?
+    \item TODO: can any task be solved with an added natural instruction?
+    \item TODO: go from asking natural question to ICL in zero shot, n shot and
+          then with instructions. I think the difference is: instruct model can
+          do natural question (e.g. ask a capital city), and it can also do zero
+          shot when a natural language instruction is included (e.g. do
+          translate to french). They should be able to also generate
+          responses in a given mood, but we do that in the next task.
+\end{enumerate}
+
+\section{Generating Longer Responses}
+
+\begin{enumerate}[label=(\alph*)]
+    \item See code.
+    \item TODO: before we saw greedy not good for llama and gpt sometimes, but
+          now with more tokens decoded? Were they trying to talk?
+    \item TODO: try different sampling methods, see code in RAW notebook.
+    \item TODO: Try different lengths: short means incomplete sentences, long
+          means model continues conversation by itself. Also try different 
+          system prompts. Do all models follow the instructions?  
+\end{enumerate}
+
+\end{document}

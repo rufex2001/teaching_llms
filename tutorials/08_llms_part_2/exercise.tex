@@ -1,0 +1,154 @@
+\documentclass[11pt,a4paper]{article}
+
+% packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{fullpage} 
+\usepackage{tabularx}
+\usepackage{amssymb,amstext,amsmath}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{algorithmic}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{url}
+\usepackage[colorlinks=true,bookmarks,unicode=true,pdftex,a4paper]{hyperref}
+\usepackage[round]{natbib}
+\usepackage[usenames,dvipsnames]{color, xcolor}
+\headsep1cm
+
+% macros
+\input{macros}
+
+% new commands
+\newcommand\op[1]{\operatorname{#1}}
+
+% header and footer
+\lhead{Advanced Methods in Text Analytics, FSS 2025}
+\chead{}
+\rhead{\thepage\ }
+\cfoot{}
+\pagestyle{fancy}
+
+\title{Advanced Methods in Text Analytics \\ 
+Exercise 8: Large Language Models - Part 2}
+\author{Daniel Ruffinelli}
+\date{FSS 2025}
+
+\begin{document}
+\maketitle
+
+In this exercise, we use code to explore some basic uses of pre-trained LLMs.
+The code runs well on CPU in a laptop with 16GB of RAM, where the most expensive
+tasks take about 10 seconds. Still, feel free to modify the code to better suit
+your resources.
+
+% \section{KV-Caching and More Efficient Self-Attention}
+
+% TODO: consider covering KV cache and multiquery attention and grouped query 
+% attention.
+
+\section{Making Predictions with LLMs}
+
+In this task, we look at how to make predictions with pre-trained LLMs.
+
+\begin{enumerate}[label=(\alph*)]
+    \item We first load two pre-trained LLMs:
+          \href{https://github.com/EleutherAI/gpt-neo}{GPT Neo} of 1.3B
+          parameters and released in 2021, and
+          \href{https://huggingface.co/meta-llama/Llama-3.2-1B}{Llama-3.2-1B},
+          a model released in late 2024.
+          We also load their corresponding tokenizers, so we can encode and
+          decode text to interact with the models.
+          Run the given code to load the models.
+          Then give a basic description of their architecture as described by
+          the output in the code, e.g.\ number of transformer layers, size of
+          hidden states, size of the vocabulary.
+    \item Next, we write a simple prompt and tokenize it with the
+          tokenizer of any of the models we loaded. Run the give code and
+          inspect the object given as output. What type of object is it? What
+          components does it have? What do they represent? Go over some of
+          \href{https://huggingface.co/docs/transformers/index}{HuggingFace's documentation}
+          and add some code to explore the output in order to find the answer.
+          How many tokens are required to encode your prompt?
+    \item We now use the model to predict the next token given your prompt
+          from the previous subtask. Run the given code and inspect the object
+          returned by the model. What type of object is it? What components does
+          it have? What do they represent?
+          As before, use HuggingFace's documentation and run some code to find
+          the answer.
+          Where is the distribution over vocabulary that we should use to
+          predict the next token?
+    \item Finally, we obtain the top $k$ tokens predicted by a model. For that,
+          fill in the function \texttt{get\_top\_k\_tokens} in the given code.
+          To decode tokens, use the function \texttt{batch\_decode}. You can
+          learn about it
+          \href{https://huggingface.co/docs/transformers/en/main_classes/tokenizer#transformers.PreTrainedTokenizerFast.batch_decode}{here}.
+          Do the top $k$ tokens make sense given the prompt you tested? Are
+          there any differences in the output of the two different models?
+          What could this function \texttt{get\_top\_k\_tokens} be used for?
+\end{enumerate}
+
+\section{Prompting}
+
+In this task, we test the impact that different prompts have on the predictions
+made by LLMs.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Let's inspect the top $k$ tokens predicted by the models from the
+          previous task.
+          Run the code and test the output of the model when given the different
+          prompts in the code. Try different prompts of your own as well.
+          What do the top $k$ tokens look like? Do they contain the answer to
+          the questions? Can we use them to make predictions? If so, how? If
+          not, can you find a prompt that results in top tokens we can actually
+          use for predictions?
+    \item Let's now try a more specific type of prompt: in-context learning
+          (ICL) prompts. Look at the tasks defined in the code, run it and
+          see whether the format of the prompts matches what we know about ICL.
+          What are the different components of an ICL prompt?
+    \item We now try our ICL prompts with our loaded pre-trained models.
+          Let's start with zero-shot prompts and no instruction. Do the models
+          understand some tasks? Which ones? Then add a few demonstrations and
+          compare with the zero-shot setting. Do some tasks benefit from having
+          demonstrations more than others? Do both models perform equally well?
+          Does the prompt template make a difference?
+    \item Try adding natural language instructions to the task. Does it help?
+          If so, on which tasks? And on which models?
+    \item We now add a new model, an instruction-tuned variant of the same Llama
+          we have been testing. Try all prompts so far starting with the natural
+          questions and all the way to the ICL prompts with natural language
+          instruction. Do you see any difference compared to the other two
+          models?
+\end{enumerate}
+
+\section{Generating Longer Responses}
+
+In this task, we explore how to generate longer responses with LLMs and what
+these responses look like under different settings.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Complete the function \texttt{generate} given in the code using
+          everything we've learned so far. Make sure to use greedy sampling.
+    \item Try the \texttt{generate} function with different prompts. Do the
+          models produce reasonable responses? Is there a difference between
+          models? Does the output of some models make more sense now that we are
+          decoding more tokens?
+    \item HuggingFace models already include a
+          \href{https://huggingface.co/docs/transformers/v4.51.3/en/main_classes/text_generation#transformers.GenerationMixin.generate}{\texttt{generate}}
+          function similar to ours, which we will use from now for simplicity.
+          Read about that function and try using it to generate responses using
+          different sampling methods. What differences do you observe between
+          them?
+    \item We now contruct a prompt that simulates a dialogue system as a way to
+          see if this type of prompts make a difference with model outputs.
+          Inspect the function \texttt{construct\_chat\_prompt} and run the code
+          to test it. Try different system prompts and generate respones of 
+          different lengths? Are the responses as you expected? If not, what 
+          issues do you see? And how could we solve them? 
+\end{enumerate}
+
+\end{document}

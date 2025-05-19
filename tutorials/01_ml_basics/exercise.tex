@@ -1,0 +1,222 @@
+\documentclass[11pt,a4paper]{article}
+
+% packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage{setspace}
+\usepackage{enumitem}
+% \usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{fullpage} 
+\usepackage{tabularx}
+\usepackage{amssymb,amstext,amsmath}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+% \usepackage{algorithmic}
+% \usepackage[ruled,vlined]{algorithm2e}
+\usepackage{url}
+\usepackage[bookmarks,unicode=true,pdftex,a4paper]{hyperref}
+\usepackage[round]{natbib}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+\headsep1cm
+
+% macros
+\input{../macros}
+
+% header and footer
+\lhead{Advanced Methods in Text Analytics, FSS2025}
+\chead{}
+\rhead{\thepage\ }
+\cfoot{}
+\pagestyle{fancy}
+
+\title{Advanced Methods in Text Analytics \\ 
+Exercise 1: Machine Learning Basics}
+\author{Daniel Ruffinelli}
+\date{FSS 2025}
+
+\begin{document}
+\maketitle
+
+The following is some of the mathematical notation we will use throughout the
+semester:
+
+\begin{itemize}
+    \item Scalars: $a,b\in\bb{R}$
+    \item Vectors: $\vx,\vy\in\bb{R}^n$ (by default, vectors are all \emph{column}
+          vectors, i.e.\ size is $n\times 1$)
+    \item Matrices: $\mX,\mY\in\bb{R}^{m\times n}$
+    \item Scalar product: $a\vx\in\bb{R}^n$
+    \item Dot product: $\vx^\top\vy\in\bb{R}$ (some sources call this a scalar product)
+    \item Matrix-vector product: $\mX\vx\in\bb{R}^{m\times 1}$
+    \item Matrix-matrix product: $\mX^\top\mY\in\bb{R}^{n\times n}$
+\end{itemize}
+
+\section{Machine Learning Basics}
+
+In machine learning, we typically develop models that can be trained to perform
+a specific task.
+Formally, a model can be represented by a function
+$f_{\vtheta}\colon \bb{R}^n\mapsto \bb{R}^m$, where $\vtheta\in\bb{R}^k$ are the
+parameters of the model.
+For a given $\vx\in\bb{R}^n$, we can write this as follows:
+$f(\vx\mid\vtheta) = \vy$.
+
+\begin{enumerate}[label=(\alph*)]
+    \item What part of the basic machine learning pipeline do the symbols in the
+          formal description above denote?
+          Specifically:
+          \begin{enumerate}[label=(\roman*)]
+              \item What does $\vx$ represent? And each of $\vx_i$?
+              \item What is $\vy$ and what is it used for?
+              \item What is $f(\vx\mid\vtheta)$? Explain this notation.
+              \item What is a possible value for the input dimension $n$?
+                    And for the output dimension $m$? What factors determine
+                    these values?
+          \end{enumerate}
+    \item What are the common types of machine learning tasks in natural
+          language processing based on the output a model produces?
+          What does the output look like for each of these task types?
+    \item How does \emph{``learning''} take place in machine learning? What is
+          the goal of this learning process?
+    \item What are the \textit{hyperparameters} of a machine learning model?
+          Provide an example.
+          How do we find the optimal values for a model's hyperparameters?
+    \item Why do machine learning pipelines typically rely on datasets split
+          into three parts: training, validation, and test sets? What is the
+          role of each of these data splits?
+    \item Briefly explain the concepts of \emph{underfitting} and
+          \emph{overfitting}. Why do they often occur? How may we recognize them
+          in practice?
+\end{enumerate}
+
+\section{Log-linear Classifiers}
+
+Linear classifiers are those that model the classification task as a
+\emph{linear combination} of input features and model parameters, where the
+model parameters act as the \emph{weights} of that linear combination.
+In this task, we review some log-linear classifiers commonly used in NLP.
+
+\begin{enumerate}[label=(\alph*)]
+    \item Recall that the logistic regression model is a linear classifier
+          designed for binary classification. We introduced this model in the
+          lectures with the following equations:
+          \begin{align}
+              p(y=1\mid x) & = \sigma(w x + b)     \\
+              p(y=0\mid x) & = 1 - \sigma(w x + b)
+          \end{align}
+          where $x,y,w,b\in\bb{R}$, $\vtheta=(w,b)$ are model parameters, $x$ is
+          the input and $\sigma$ is the logistic (sigmoid) function defined
+          as follows:
+          \begin{align}\label{eq:sigmoid}
+              \sigma(z) = \frac{\exp{(z)}}{1 + \exp{(z)}}
+          \end{align}
+          Give a formal expression for a logistic regression model that takes as
+          input a vector $\vx\in\bb{R}^n$ and that does not use a bias term.
+          How many parameters does this model have?
+    \item If not done already, write the same logistic regression model from the
+          previous question but in vectorized form, i.e.\ as a function of its
+          parameter vector $\vw$.
+    \item Now add a bias term to your logistic regression model. Can we still
+          write it in vectorized form?
+    \item \emph{Log}-linear models are those that model classification as a
+          linear combination of $\vx$ and $\vw$ with the exponential function
+          applied to it.
+          Give a formal expression for a \emph{general} log-linear model
+          $f(y\mid\vx)$ designed for binary classification and parameterized by
+          $\vw$, where $\vx,\vw\in\bb{R}^n$.
+    \item Now generalize your answer from the previous question so the model is
+          designed for multi-class classification. How many parameters does this
+          model have?
+    \item If not done already, rewrite your model from the previous question so
+          it's a probabilistic model, i.e.\ for each input vector $\vx$ and
+          class $c$, the models provides the probability that the input belongs 
+          to that given class $c$. Can you do this in vectorized form? I.e.\ can 
+          you define a function that returns a distribution over classes for a 
+          given input vector $\vx$?
+    \item Let's put it all together now. Given $\mX\in\bb{R}^{m\times n}$ that
+          represents $m$ examples of $n$ dimensions, write a formal expression
+          for a general log-linear model designed for multi-class classification
+          over $C$ classes \emph{in vectorized form}. Assume no biases.
+    \item Can you guess why we use \emph{log}-probabilities in log-linear models
+          instead of just probabilities as in linear classifiers?
+\end{enumerate}
+
+\section{Training Log-linear Classifiers}
+
+In this task, we are interested in training a probabilistic log-linear model,
+like those from the previous task, using maximum likelihood estimation (MLE).
+
+\begin{enumerate}[label=(\alph*)]
+    \item In MLE, we aim to maximize the likelihood of a model given some data.
+          Let $X=\{x_1, x_2, \ldots, x_n\}$ be a dataset of $n$ examples and
+          $p$ a probabilistic log-linear model parameterized by $\vw\in\bb{R}^d$
+          and designed for binary classification.
+          Given the following joint distribution of the data as given by the
+          model:
+          \begin{align}
+              p(X\mid\vw) = p(x_1, x_2, \ldots, x_n),
+          \end{align}
+          rewrite this expression assuming that all examples are independent and
+          identically distributed (i.i.d.).
+    \item For clarity, let $X_{pos}$ be the set examples from the positive class,
+          and $X_{neg}$ the set of examples from the negative class.
+          Rewrite your answer from the previous question as a function of
+          $X_{pos}$ and $X_{neg}$.
+    \item Write the corresponding likelihood function $\set{L}$ for the model
+          $p$ described in your previous answer.
+    \item For reasons discussed in the previous task, we often work with
+          log-probabilities instead of probabilities.
+          Write the log-likelihood function $\set{LL}$ for the model $p$.
+          Use $\ln$ throughout.
+    \item Assume $p$ is a logistic regression model and each data point in $X$
+          is represented by $\vx_i\in\bb{R}^d$.
+          Rewrite the log-likelihood function you wrote in the previous answer
+          by including the logistic regression model explicitly, i.e.\ using the
+          sigmoid function in Eq.~\ref{eq:sigmoid}.
+    \item As seen in the MLE example from the lecture, we will need to compute
+          the gradient to maximize our expression. Compute the gradient of the
+          likelihood function for your logistic regression model w.r.t.\ model
+          parameters $\vw$.
+          That is, $\nabla_{\vw}\set{LL}$ where $\nabla$ is defined as:
+          \begin{align}\label{eq:gradient}
+              \nabla_{\vw}\set{LL} = \left[\frac{\partial\set{LL}}{\partial w_1},
+                  \frac{\partial\set{LL}}{\partial w_2}, \ldots, \frac{\partial\set{LL}}{\partial w_d}\right].
+          \end{align}
+    \item In most cases, there are no closed-form solutions to the MLE problem.
+          Instead, we use gradient-based optimization methods.
+          Recall the gradient descent (GD) method described in the following
+          algorithm:
+          \begin{algorithm}
+              \caption{Gradient Descent}
+              \label{alg:gd}
+              \begin{algorithmic}[1]
+                  \Procedure{Gradient Descent}{Dataset $X$, Objective function $J$, Model $p_{\vw}$, Learning rate $lr$, Number of Epochs $N$}
+                  \State $\vw\leftarrow random()$ \qquad   // random weight initialization
+                  \For{$i \in\{1,\ldots N\}$}
+                  \State $g_i\leftarrow \nabla_{\vw}J(p_{\vw}(X))$
+                  \State $\vw_{i+1}\leftarrow \vw_i - lr \cdot g_i$ \qquad   // update rule
+                  \EndFor
+                  \State{\textbf{Return} $p_{\vw}$}
+                  \EndProcedure
+              \end{algorithmic}
+          \end{algorithm}
+
+          When relating this algorithm to the previous questions, $p_{\vw}$ is a
+          logistic regression model, $J$ is given by the answer to question (e),
+          and $g$ is given by Eq.~\ref{eq:gradient}.
+          Modify Algorithm~\ref{alg:gd} so it performs (i) stochastic gradient
+          descent (SGD) and (ii) mini-batch gradient descent (BGD).
+          Recall that the former uses a single example for each update, and the
+          latter a subset of the data for each update.
+          Make sure you define each new function or component you use in the
+          algorithm.
+    \item Assume that the function $\text{shuffle}(X)$ randomly shuffles the
+          examples in dataset $X$.
+          How would you modify your BGD algorithm to include this step?
+          Do you know why shuffling is important?
+\end{enumerate}
+
+\end{document}
