@@ -43,7 +43,7 @@ PDF and PPTX, as well as [exercises](tutorials/) in PDF and TEX.
     many of the concepts discussed throughout the course.
 * All images should have a link to their source, except those coming from the
     main reference book 
-    ([Jurafsky et al. (2025)](https://web.stanford.edu/~jurafsky/slp3/)) or 
+    ([Jurafsky and Martin (2025)](https://web.stanford.edu/~jurafsky/slp3/)) or 
     where it clear from context (e.g. the source paper is introduced in the same
     slide).
 
@@ -154,8 +154,8 @@ PDF and PPTX, as well as [exercises](tutorials/) in PDF and TEX.
         Attention
     * More recent approaches to positional embeddings, e.g. RoPE
     * Proper coverage of NLP Applications from 
-    [Jurafsky et al. (2025)](https://web.stanford.edu/~jurafsky/slp3/) (the last
-    section of the NLP Applications lecture is severely unfinished)
+    [Jurafsky and Martin (2025)](https://web.stanford.edu/~jurafsky/slp3/) 
+    (the last section of the NLP Applications lecture is severely unfinished)
 
 ## How to Contribute
 
