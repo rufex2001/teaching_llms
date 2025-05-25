@@ -72,8 +72,8 @@ PDF and PPTX, as well as [exercises](tutorials/) in PDF and TEX.
     * Causal Language Models (the GPT family)
     * Fine-tuning (PEFT, adapters)
 6. [Tokenization](lectures/06_tokenization/)
-    * Role and Impact of Tokenization
-    * Few tokenization methods (BPE, UnigramLM, SentencePiece)
+    * Role and impact of Tokenization
+    * Byte-Pair Encoding, UnigramLM, SentencePiece
 7. [Large Language Models](lectures/07_llms/)
     * In-Context Learning (prompting, CoT)
     * LLM Architectures (the GPT family, the Llama family)
@@ -92,12 +92,47 @@ PDF and PPTX, as well as [exercises](tutorials/) in PDF and TEX.
     * The Mamba Architecture
 11. [Reasoning LLMs](lectures/11_reasoning_llms/)
     * Test-time compute
-    * Vanilla vs Reasoning LLMs
+    * Vanilla vs reasoning LLMs
     * Deepseek-R1
 
 ## Tutorials
 
-* TODO list of tutorials with links
+0. [Introduction to Python/PyTorch](tutorials/00_python_pytorch/)
+    * Python
+    * Numpy
+    * PyTorch
+1. [ML Basics](tutorials/01_ml_basics/)
+    * Models as functions
+    * Log-linear classifiers
+2. [DL Basics and Word Embeddings](tutorials/02_dl_basics_word_embeddings/)
+    * Fully-connected neural networks
+    * Backpropagation
+    * Skip-gram
+3. [Language Models - Part 1](tutorials/03_language_models_1/)
+    * Language modeling
+    * Language modeling evaluation (perplexity)
+    * Recurrent Neural Networks
+    * Sampling for Text Generation
+4. [Language Models - Part 2](tutorials/04_language_models_2/)
+    * Implementing N-Gram language models (code)
+    * Implementing language models with FNNs (code)
+    * Implementing language models with RNNs (code)
+5. [Transformers - Part 1](tutorials/05_transformers_1/)
+    * Transformers as functions
+    * Positional Embeddings
+    * Revisiting Perplexity
+6. [Transformers - Part 2](tutorials/06_transformers_2/)
+    * The Residual Stream
+    * Attention Heads as Linear Operators
+    * Implementing language models with Transformers (code)
+7. [Large Language Models - Part 1](tutorials/07_llms_part_1/)
+    * Transfer Learning basics
+    * Parameter Efficient Fine-tuning (LoRA)
+    * Large Language Models
+8. [Large Language Models - Part 2](tutorials/08_llms_part_2/)
+    * Predicting with LLMs (code)
+    * In-Context Learning with LLMs (code)
+    * Generating Text with LLMs (code)
 
 ## Why Do I Make Exercise Solutions Public?
 
@@ -113,7 +148,7 @@ PDF and PPTX, as well as [exercises](tutorials/) in PDF and TEX.
 ## TODO
 
 * The course can still be significantly improved, e.g. many concepts introduced 
-    throughout the course can be better illustrated.
+    throughout the course should be better illustrated.
 * But I currently feel that adding the following is priority:
     * KV-Caching, Multi-Query Attention, Grouped-Query Attention, Multi-Latent 
         Attention
