@@ -71,7 +71,7 @@ and have a closer look at the original approach for positional embeddings.
               \operatorname{PE}_{(k,2i)}   & = \sin\left(\frac{1}{n^{2i/d}}k\right), \\
               \operatorname{PE}_{(k,2i+1)} & = \cos\left(\frac{1}{n^{2i/d}}k\right).
           \end{align*}
-          Here, $1\leq i \leq d$ and $n$ is a hyperparameter originally
+          Here, $0\leq i \leq \frac{d}{2}$ and $n$ is a hyperparameter originally
           set to $10000$.
           Note that the first equation is used to assign values to the
           \emph{even} elements of the PE, and the second equation to the

@@ -394,19 +394,19 @@ Exercise 2: Deep Learning Basics and Word Embeddings \\
     \item We can explicitly express the sampling of negatives in the objective
           as follows:
           \begin{align}\label{eq:basic_objective_with_expectation}
-              L(w,c) = \log \sigma(\vw_w^t\vw_c) + k\cdot \bb{E}_{i\sim P}[\log(-\vw_w^t\vw_i)].
+              L(w,c) = \log \sigma(\vw_w^t\vw_c) + k\cdot \bb{E}_{i\sim P}[\log \sigma(-\vw_w^t\vw_i)].
           \end{align}
           In other words, each negative is weighted by its probability of being
           sampled.
           We can write this more explicitly in the following way:
           \begin{align}\label{eq:basic_objective_with_relative_freq}
-              L(w,c) = \log \sigma(\vw_w^t\vw_c) + k\cdot \sum_{i\in V} \frac{\#(i)}{|V|}\log(-\vw_w^t\vw_i).
+              L(w,c) = \log \sigma(\vw_w^t\vw_c) + k\cdot \sum_{i\in V} \frac{\#(i)}{|V|}\log \sigma(-\vw_w^t\vw_i).
           \end{align}
     \item We can do this by applying
           Equation~\ref{eq:basic_objective_with_relative_freq} over the entire
           training set as follows:
           \begin{align}\label{eq:general_objective_with_relative_freq}
-              L = \sum_{w\in V} \sum_{c\in V} \#(w,c)\left(\log \sigma(\vw_w^t\vw_c) + k\cdot \sum_{i\in V} \frac{\#(i)}{|V|}\log(-\vw_w^t\vw_i)\right),
+              L = \sum_{w\in V} \sum_{c\in V} \#(w,c)\left(\log \sigma(\vw_w^t\vw_c) + k\cdot \sum_{i\in V} \frac{\#(i)}{|V|}\log \sigma(-\vw_w^t\vw_i)\right),
           \end{align}
           where $\#(w,c)$ is the number of times tuple $(w,c)$ appears in the
           training set.

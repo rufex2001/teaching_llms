@@ -271,7 +271,7 @@ Note that in this setting, entry $m_{ij}$ in $\mM$ is given by $\vw_i^T\vw_j$.
           \emph{a single training example} $(w,c)$ using the cross-entropy loss
           is the following:
           \begin{align}\label{eq:basic_objective}
-              L(w,c) = \log \sigma(\vw_w^t\vw_c) + \sum_{i=1}^k \log(-\vw_w^t\vw_i),
+              L(w,c) = \log \sigma(\vw_w^t\vw_c) + \sum_{i=1}^k \log \sigma(-\vw_w^t\vw_i),
           \end{align}
           where $k$ are the number of negative examples sampled per positive
           tuple $(w,c)$ in the training set (we omit the negation of the loss
