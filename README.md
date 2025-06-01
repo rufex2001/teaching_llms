@@ -32,8 +32,8 @@ PDF and PPTX, as well as [exercises](tutorials/) in PDF and TEX.
 * Generally, lectures are designed to refresh known concepts, introduce new 
     concepts, present important methods in detail, and briefly cover the latest 
     research on some of these topics. 
-    The lectures are full of references throughout, as well as in the final
-    References slide.
+    The lectures are full of linked references throughout, as well as in the 
+    final References slide.
 * The purpose of exercise sheets is more versatile, as these are sometimes used
     to dive deeper into some concepts introduced in the lectures, but are also 
     often used to introduce new but very important concepts that are perhaps 
@@ -142,8 +142,8 @@ PDF and PPTX, as well as [exercises](tutorials/) in PDF and TEX.
 * I've used the exercise sheets as ungraded exercises, and I have found students 
     to happily work through the tasks by themselves before discussing the 
     solutions. 
-* But yes, public solutions means the exercise sheets should not be used as 
-    graded exercises. 
+* But yes, making the solutions publicly available means that these exercise 
+    sheets should not be used as graded exercises. 
 
 ## TODO
 
