@@ -44,8 +44,8 @@ PDF and PPTX, as well as [exercises](tutorials/) in PDF and TEX.
 * All images should have a link to their source, except those coming from the
     main reference book 
     ([Jurafsky and Martin (2025)](https://web.stanford.edu/~jurafsky/slp3/)) or 
-    where it clear from context (e.g. the source paper is introduced in the same
-    slide).
+    where it is clear from context (e.g. the source paper is introduced in the 
+    same slide).
 
 ## Lectures
 
