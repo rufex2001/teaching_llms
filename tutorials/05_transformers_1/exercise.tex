@@ -140,13 +140,13 @@ cross-entropy and log loss.
           $n$ over some language $L$.
           Write the expression to compute this entropy.
           How would you compute the average entropy per word in such a sequence?
-    \item In the context of language models, $p$ is the distribution over some
+    \item In the context of language models, $m$ is the distribution over some
           natural language $L$, and we don't have access to this distribution.
-          Instead, we learn an estimate $m$ of this distribution from data.
-          In such a context, the concept of \emph{cross-entropy} $H(p,m)$ is
+          Instead, we learn an estimate $p$ of this distribution from data.
+          In such a context, the concept of \emph{cross-entropy} $H(m,p)$ is
           suitable.
-          It is defined as the sum of $p(x)$ for all $x\in X$ weighted by their
-          corresponding $\log$ probabilities according to $m$.
+          It is defined as the sum of $m(x)$ for all $x\in X$ weighted by their
+          corresponding $\log$ probabilities according to $p$.
           Write the expression for cross-entropy \emph{rate} for a sequence of 
           length $n$.
     \item It can be shown that the cross-entropy of a language can be

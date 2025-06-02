@@ -68,7 +68,7 @@ Exercise 7: Large Language Models - Part 1\\
           Similarly, the masked language modeling (MLM) objective is defined as
           follows:
           \begin{align}
-              \op{MLM}(S) & = \prod_{s=1}^{S} \prod_{m=1}^{M_s} p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M),
+              \op{MLM}(S) & = \prod_{s=1}^{S} \prod_{m=1}^{M_s} p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M_s),
           \end{align}
           where $M_s$ is set of masked out tokens in sequence $s$ and
           $A \setminus B$ is set difference.
@@ -78,7 +78,7 @@ Exercise 7: Large Language Models - Part 1\\
               \op{CLM}(S) & = - \frac{1}{|S|} \sum_{s=1}^{S} \log p(x_{|s|} \mid x_1, x_2, \ldots, x_{|s|-1}),
           \end{align}
           \begin{align}
-              \op{MLM}(S) & = - \frac{1}{|M|} \sum_{s=1}^{S} \sum_{m=1}^{M_s} \log p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M),
+              \op{MLM}(S) & = - \frac{1}{|M|} \sum_{s=1}^{S} \sum_{m=1}^{M_s} \log p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M_s),
           \end{align}
           where $M = \{M_1 \cup M_2 \cup \ldots \cup M_{|S|}\}$ is the set of 
           all masked tokens in $S$.
@@ -184,17 +184,18 @@ Exercise 7: Large Language Models - Part 1\\
           model. In fact, Houlsby originally added one adapter after the
           multi-head attention operator and another after the FNN operator in
           each transformer block.
-    \item Let $\mA \in \bb{R}^{d\times r}$, $\mB \in R^{r\times d}$ be the
+    \item Let $\mA \in \bb{R}^{d\times r}$, $\mB \in R^{r\times 4d}$ be the
           projection matrices in the LoRA adapter.
           Then:
           \begin{align}\label{lora}
-              \op{FNN'}(\mX) & = (\mX\mW_{up} + \mX\mA\mB)\mW_{down}
+              \op{FNN'}(\mX) & = f(\mX\mW_{up} + \mX\mA\mB)\mW_{down}
           \end{align}
           The addition comes from the LoRA adapter, which is applied using a
           residual connection around the weight matrix we are fine-tuning.
-          Each adapter has $2dr$ number of parameters, where $r << d$ is
-          the hyperparameter that controls the rank of both projection matrices
-          used by LoRA adapters.
+          $\mA$ has $dr$ parameters and $\mB$ has $4dr$ parameters, for a total
+          of $5dr$ for the entire adapter, where $r << d$ is the hyperparameter 
+          that controls the rank of both projection matrices used by LoRA 
+          adapters.
     \item LoRA adapters can be applied to any projection matrix, e.g.\ the
           projections used in self-attention layers. This should be clear from
           the fact that in the FNN operator, we applied a LoRA adapter only to
@@ -205,7 +206,7 @@ Exercise 7: Large Language Models - Part 1\\
           that matrix products are distributive w.r.t.\ matrix sum.
           That is,
           \begin{align}
-              \op{FNN'}(\mX) & = (\mX\mW_{up} + \mX\mA\mB)\mW_{down} = \mX(\mW_{up} + \mA\mB)\mW_{down}
+              \op{FNN'}(\mX) & = f(\mX\mW_{up} + \mX\mA\mB)\mW_{down} = f(\mX(\mW_{up} + \mA\mB))\mW_{down}
           \end{align}
           where $\Delta\mW_{up} = \mA\mB$.
 

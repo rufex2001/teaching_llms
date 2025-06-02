@@ -264,19 +264,19 @@ Exercise 5: Transformers - Part 1\\
               H(w_1,w_2,\ldots,w_n) = -\frac{1}{n}\sum_{w_{1:n}\in L} p(w_{1:n})\log p(w_{1:n})
           \end{align*}
           Note that we overload $H(x)$ to also represent entropy rate.
-    \item The cross-entropy of some model $m$ of $p$ is defined as:
+    \item The cross-entropy of some model $p$ of $m$ is defined as:
           \begin{align*}
-              H(w_1,w_2,\ldots,w_n) = -\frac{1}{n}\sum_{w_{1:n}\in L} p(w_{1:n})\log m(w_{1:n})
+              H(w_1,w_2,\ldots,w_n) = -\frac{1}{n}\sum_{w_{1:n}\in L} m(w_{1:n})\log p(w_{1:n})
           \end{align*}
-          The intuition here is that we draw sequences from $p$, but we weigh
-          them by their probability according to model $m$.
+          The intuition here is that we draw sequences from $m$, but we weigh
+          them by their probability according to model $p$.
           In other words, this expectation (average information, i.e.\ entropy)
-          is according to $m$.
-          From a training perspective, $p$ is typically the target distribution
-          that we want to learn with model $m$.
-          In the case of entropy of sequences of text, you can think of $m$
+          is according to $p$.
+          From a training perspective, $m$ is typically the target distribution
+          that we want to learn with model $p$.
+          In the case of entropy of sequences of text, you can think of $p$
           as the softmax distribution of a language model you are training,
-          and $p$ the target distribution set by self-supervision (all the
+          and $m$ the target distribution set by self-supervision (all the
           mass on a single word in the vocabulary).
     \item We proceed as follows:
           \begin{align*}
@@ -287,8 +287,8 @@ Exercise 5: Transformers - Part 1\\
           The approximation given in this question shows us not only how
           perplexity is related to entropy, but it also explains what we are
           doing when we compute the perplexity of a held-out validation corpus:
-          We are estimating the cross-entropy of the entire language, where $m$
-          is our language model and $p$ the true distribution of the language.
+          We are estimating the cross-entropy of the entire language, where $p$
+          is our language model and $m$ the true distribution of the language.
           Recall from machine learning courses, that cross-entropy is equivalent
           to log-loss, which explains why we typically apply the exponential
           function to our loss value to get perplexity in code ($\exp$ because
