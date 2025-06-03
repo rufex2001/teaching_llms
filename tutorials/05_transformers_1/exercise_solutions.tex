@@ -256,18 +256,19 @@ Exercise 5: Transformers - Part 1\\
           function to compute perplexity.
     \item We have:
           \begin{align*}
-              H(w_1,w_2,\ldots,w_n) = -\sum_{w_{1:n}\in L} p(w_{1:n})\log p(w_{1:n})
+              H(w_1,w_2,\ldots,w_n) = -\sum_{w_{1:n}\in L} p(w_{1:n})\log p(X(w_{1:n}))
           \end{align*}
           The average entropy per word in the sequence, also known as
           \emph{entropy rate}, is given by:
           \begin{align*}
-              H(w_1,w_2,\ldots,w_n) = -\frac{1}{n}\sum_{w_{1:n}\in L} p(w_{1:n})\log p(w_{1:n})
+              H(w_1,w_2,\ldots,w_n) = -\frac{1}{n}\sum_{w_{1:n}\in L} p(w_{1:n})\log p(X(w_{1:n}))
           \end{align*}
           Note that we overload $H(x)$ to also represent entropy rate.
     \item The cross-entropy of some model $p$ of $m$ is defined as:
           \begin{align*}
-              H(w_1,w_2,\ldots,w_n) = -\frac{1}{n}\sum_{w_{1:n}\in L} m(w_{1:n})\log p(w_{1:n})
+              H(w_1,w_2,\ldots,w_n) = -\frac{1}{n}\sum_{w_{1:n}\in L} m(w_{1:n})\log p(w_{1:n}),
           \end{align*}
+          where we set $w_{1:n} = X(w_{1:n})$ for simplicity.
           The intuition here is that we draw sequences from $m$, but we weigh
           them by their probability according to model $p$.
           In other words, this expectation (average information, i.e.\ entropy)
