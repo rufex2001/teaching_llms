@@ -3,7 +3,7 @@
 This repository contains teaching materials for the course 
 [Advanced Methods in Text Analytics](https://www.uni-mannheim.de/dws/teaching/course-details/courses-for-master-candidates/ie-696-advanced-methods-in-text-analytics/), a MSc 
 course created by 
-[Daniel Ruffinelli](https://www.uni-mannheim.de/dws/people/researchers/postdoctoral-research-fellows/daniel-ruffinelli/) for the 
+[Daniel Ruffinelli](ruffinelli.io) for the 
 [University of Mannheim](https://www.wim.uni-mannheim.de/en/). 
 The course is designed to cover the latest methods for natural language 
 processing (NLP), and so is heavily focused on language models in general, and 
