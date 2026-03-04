@@ -260,8 +260,8 @@
     \begin{itemize}
         \item Derive the update rule for the weights marked in red in the
               image, i.e., for $w^{(1)}_{2,2}$ and $w^{(2)}_{1,2}$.
-        \item Assume you are training your model with the following square
-              error loss:
+        \item Assume you are training your model with the following training
+              objective:
               \begin{align*}
                   L & = -\frac{1}{2}\frac{1}{N}\sum_{e=1}^{N} \sum_{l=1}^{M} (t_{e,l}-y_{e,l})^2.
               \end{align*}
@@ -269,7 +269,7 @@
               labels, $t_{e,l}$ the target label $l$ of example $e$ and
               $y_{e,l}$ the corresponding prediction made by the model.
         \item Note that in this toy setting, $M = N = 2$.
-        \item Using square error loss for a classification task is not a
+        \item Using squared error loss for a classification task is not a
               common setting, but it is useful for us to construct a
               simple example to study backpropagation.
     \end{itemize}
@@ -286,7 +286,7 @@
               out one update iteration for denoted weights $w^{(1)}_{2,2}$
               and $w^{(2)}_{1,2}$, using the two training examples for
               supervision.
-        \item Use learning rate $\psi = 1$ and the square error
+        \item Use learning rate $\psi = 1$ and the squared error
               loss given above.
     \end{itemize}
 \end{frame}
@@ -897,12 +897,12 @@
               simplicity:
               {\tiny
               \begin{align*}
-                  \#(w,c)\sigma(-x)                 & = k\cdot\#(w)\cdot\frac{\#(c)}{|V|}\sigma(x)                                                                  \\
-                  \frac{\sigma(x)}{1 - \sigma(x)}   & = \frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}                                                                    \\
-                  \frac{1+e^{-x}}{e^{-x}(1+e^{-x})} & = \frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}                  &  & (\text{definition of }\sigma)                \\
-                  e^{x}                             & = \frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}                                                                    \\
+                  \#(w,c)\sigma(-x)                 & = k\cdot\#(w)\cdot\frac{\#(c)}{|V|}\sigma(x)                                                                 \\
+                  \frac{\sigma(x)}{1 - \sigma(x)}   & = \frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}                                                                   \\
+                  \frac{1+e^{-x}}{e^{-x}(1+e^{-x})} & = \frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}                 &  & (\text{definition of }\sigma)                \\
+                  e^{x}                             & = \frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}                                                                   \\
                   x                                 & = \ln\left(\frac{1}{k}\frac{\#(w,c)|V|}{\#(w)\#(c)}\right) &  & (\text{applied logs})                        \\
-                  \vw_{w}^t\vw_{c}                  & = \ln\left(\frac{\#(w,c)|V|}{\#(w)\#(c)}\right) - \ln k   &  & (\text{def. of } x, \text{log of division}). \\
+                  \vw_{w}^t\vw_{c}                  & = \ln\left(\frac{\#(w,c)|V|}{\#(w)\#(c)}\right) - \ln k    &  & (\text{def. of } x, \text{log of division}). \\
               \end{align*}
               }
         \item We got our answer, now let's interpret this expression.

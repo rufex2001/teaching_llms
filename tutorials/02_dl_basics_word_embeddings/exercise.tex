@@ -76,7 +76,7 @@ any number of \emph{hidden} layers in between input and output layers.
 
 \section{Backpropagation}
 
-This task is based on a previous task written by Goran Glavas. \\
+This task is based on a previous task written by Prof.\ Dr.\ Goran Glava\v{s}. \\
 
 With backpropagation, we can get gradient information that is useful to update
 the parameters of a multi-layer neural network during training.
@@ -107,8 +107,8 @@ gradients we computed before.
           \begin{enumerate}[label=(\roman*)]
               \item Derive the update rule for the weights marked in red in the
                     image, i.e., for $w^{(1)}_{2,2}$ and $w^{(2)}_{1,2}$.
-                    Assume you are training your model with the following square 
-                    error loss:
+                    Assume you are training your model with the following 
+                    training objective:
                     \begin{align*}
                         L & = -\frac{1}{2}\frac{1}{N}\sum_{e=1}^{N} \sum_{l=1}^{M} (t_{e,l}-y_{e,l})^2.
                     \end{align*}
@@ -116,7 +116,7 @@ gradients we computed before.
                     labels, $t_{e,l}$ the target label $l$ of example $e$ and 
                     $y_{e,l}$ the corresponding prediction made by the model.
                     Note that in this toy setting, $M = N = 2$.
-                    Using square error loss for a classification task is not a
+                    Using squared error loss for a classification task is not a
                     common setting, but it is useful for us to construct a 
                     simple example to study backpropagation.
               \item You are given the toy dataset consisting of the following 
@@ -135,7 +135,7 @@ gradients we computed before.
 
 \section{Skip-Gram Basics}
 
-This task is based on a previous task written by Goran Glavas. \\
+This task is based on a previous task written by Prof.\ Dr.\ Goran Glava\v{s}. \\
 
 Consider the sentence
 \begin{align*}
@@ -197,7 +197,7 @@ We refer to this task as the \emph{original task} throughout this exercise.
 
 % ATTENTION! Why give logit scores l here? Do we use than anywhere?!
 
-This task is based on a previous task written by Goran Glavas. \\
+This task is based on a previous task written by Prof.\ Dr.\ Goran Glava\v{s}. \\
 
 We now focus on how to train models using the skip-gram approach.
 Assume throughout that we use dot products to compute logit scores, i.e.
