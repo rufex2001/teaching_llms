@@ -403,8 +403,9 @@
         \item Assume a uniform unigram model over some vocabulary $V$.
         \item What probability does such a model assign to each word in the
               vocabulary?
-        \item Compute the likelihood of this model and use it to compute its
-              perplexity over a held-out sequence of $n$ words.
+        \item Compute the likelihood of this model under the i.i.d. assumption
+              and use it to compute its perplexity over a held-out sequence of 
+              $n$ words.
     \end{itemize}
 \end{frame}
 
@@ -433,7 +434,7 @@
 \begin{frame}{Language Model Evaluation}{Answer e) (2)}
     \begin{itemize}
         \item Thus, the perplexity of LMs is often seen as proportional to the
-              size of the vocabulary, where V (the size of the vocabulary) is
+              size of the vocabulary, where $V$ (the size of the vocabulary) is
               informally seen as an lower-bound for the performance of a model,
               similar to comparing a classifier to a model tnat predicts a
               random class.
