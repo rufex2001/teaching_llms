@@ -156,6 +156,8 @@ PDF and PPTX, as well as [exercises](tutorials/) in PDF and TEX.
     * Proper coverage of NLP Applications from 
     [Jurafsky and Martin (2025)](https://web.stanford.edu/~jurafsky/slp3/) 
     (the last section of the NLP Applications lecture is severely unfinished)
+    * Exercise 03 Task 2 should discuss how to compute a single perplexity score 
+        for several sequences, as this can be easily done incorrectly. 
 
 ## How to Contribute
 
