@@ -26,7 +26,7 @@
 \input{../macros}
 
 % header and footer
-\lhead{Advanced Methods in Text Analytics, FSS2025}
+\lhead{Advanced Methods in Text Analytics, FSS2026}
 \chead{}
 \rhead{\thepage\ }
 \cfoot{}
@@ -35,7 +35,7 @@
 \title{Advanced Methods in Text Analytics \\ 
 Exercise 1: Machine Learning Basics}
 \author{Daniel Ruffinelli \\ \href{https://creativecommons.org/licenses/by/4.0/}{Licensed under Creative Commons Attribution 4.0 International}}
-\date{FSS 2025}
+\date{FSS 2026}
 
 \begin{document}
 \maketitle
@@ -124,17 +124,17 @@ In this task, we review some log-linear classifiers commonly used in NLP.
     \item \emph{Log}-linear models are those that model classification as a
           linear combination of $\vx$ and $\vw$ with the exponential function
           applied to it.
-          Give a formal expression for a \emph{general} log-linear model
-          $f(y\mid\vx)$ designed for binary classification and parameterized by
-          $\vw$, where $\vx,\vw\in\bb{R}^n$.
-    \item Now generalize your answer from the previous question so the model is
-          designed for multi-class classification. How many parameters does this
-          model have?
+          Give a formal expression for the output given by a \emph{general}
+          log-linear model $f(y\mid\vx)$ parameterized by $\vw$, where
+          $\vx,\vw\in\bb{R}^n$.
+    \item How can you modify your answer from the previous question so the model
+          is designed for multi-class classification. How many parameters does 
+          this model have?
     \item If not done already, rewrite your model from the previous question so
           it's a probabilistic model, i.e.\ for each input vector $\vx$ and
-          class $c$, the models provides the probability that the input belongs 
-          to that given class $c$. Can you do this in vectorized form? I.e.\ can 
-          you define a function that returns a distribution over classes for a 
+          class $c$, the models provides the probability that the input belongs
+          to that given class $c$. Can you do this in vectorized form? I.e.\ can
+          you define a function that returns a distribution over classes for a
           given input vector $\vx$?
     \item Let's put it all together now. Given $\mX\in\bb{R}^{m\times n}$ that
           represents $m$ examples of $n$ dimensions, write a formal expression

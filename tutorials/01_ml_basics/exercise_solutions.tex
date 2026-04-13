@@ -26,7 +26,7 @@
 \input{../macros}
 
 % header and footer
-\lhead{Advanced Methods in Text Analytics, FSS2025}
+\lhead{Advanced Methods in Text Analytics, FSS2026}
 \chead{}
 \rhead{\thepage\ }
 \cfoot{}
@@ -36,7 +36,7 @@
 Exercise 1: Machine Learning Basics \\ 
 \textbf{Solutions}}
 \author{Daniel Ruffinelli \\ \href{https://creativecommons.org/licenses/by/4.0/}{Licensed under Creative Commons Attribution 4.0 International}}
-\date{FSS 2025}
+\date{FSS 2026}
 
 \begin{document}
 \maketitle
@@ -172,8 +172,7 @@ Exercise 1: Machine Learning Basics \\
           where $\vx\in\bb{R}^{n+1}$, i.e.\ $\vx=(x_o, x_1, \ldots, x_n)$.
     \item We have:
           \begin{align}
-              f(y=1\mid\vx) & = \exp(\vw^\top\vx) = e^{\vw^\top\vx}, \\
-              f(y=0\mid\vx) & = 1 - f(y=1\mid\vx).
+              f(y\mid\vx) & = \exp(\vw^\top\vx) = e^{\vw^\top\vx}.
           \end{align}
     \item For $c\in C$ classes, we have:
           \begin{align}\label{eq:log_linear}
