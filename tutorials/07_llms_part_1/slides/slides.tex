@@ -132,14 +132,14 @@
 
 \begin{frame}{Transfer Learning}{Answer c) (1)}
     \begin{itemize}
-        \item The CLM objective is defined as follows:
+        \item The CLM likelihood is defined as follows:
               \begin{align}
                   \op{CLM}(S) & = \prod_{s=1}^{S} p(x_{|s|} \mid x_1, x_2, \ldots, x_{|s|-1}),
               \end{align}
               where $x_i$ are tokens in sequence $s$.
-        \item Similarly, the MLM objective is defined as follows:
+        \item Similarly, the MLM likelihood is defined as follows:
               \begin{align}
-                  \op{MLM}(S) & = \prod_{s=1}^{S} \prod_{m=1}^{M_s} p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M),
+                  \op{MLM}(S) & = \prod_{s=1}^{S} \prod_{m=1}^{M_s} p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M_s),
               \end{align}
               where $M_s$ is set of masked out tokens in sequence $s$ and
               $A \setminus B$ is set difference.
@@ -148,14 +148,14 @@
 
 \begin{frame}{Transfer Learning}{Answer c) (2)}
     \begin{itemize}
-        \item In practice, we use empirical risk minimization with log loss during
-              training.
+        \item We use these likelihoods with empirical risk minimization and log
+              loss during training.
         \item That is,
               \begin{align}
                   \op{CLM}(S) & = - \frac{1}{|S|} \sum_{s=1}^{S} \log p(x_{|s|} \mid x_1, x_2, \ldots, x_{|s|-1}),
               \end{align}
               \begin{align}
-                  \op{MLM}(S) & = - \frac{1}{|M|} \sum_{s=1}^{S} \sum_{m=1}^{M_s} \log p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M),
+                  \op{MLM}(S) & = - \frac{1}{|M|} \sum_{s=1}^{S} \sum_{m=1}^{M_s} \log p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M_s),
               \end{align}
               where $M = \{M_1 \cup M_2 \cup \ldots \cup M_{|S|}\}$ is set of
               all masked tokens in $S$.

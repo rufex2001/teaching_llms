@@ -60,27 +60,27 @@ Exercise 7: Large Language Models - Part 1\\
           using a \emph{self-supervised} learning objective.
           The most common ones are: (i) causal language modeling (CLM) and (ii)
           masked language modeling (MLM).
-    \item The causal language modeling (CLM) objective is defined as follows:
+    \item The likelihood in causal language modeling (CLM) can be defined as
+          follows:
           \begin{align}
               \op{CLM}(S) & = \prod_{s=1}^{S} p(x_{|s|} \mid x_1, x_2, \ldots, x_{|s|-1}),
           \end{align}
           where $x_i$ are tokens in sequence $s$.
-          Similarly, the masked language modeling (MLM) objective is defined as
-          follows:
+          Similarly, for masked language modeling (MLM), we have:
           \begin{align}
               \op{MLM}(S) & = \prod_{s=1}^{S} \prod_{m=1}^{M_s} p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M_s),
           \end{align}
           where $M_s$ is set of masked out tokens in sequence $s$ and
           $A \setminus B$ is set difference.
-          In practice, we use empirical risk minimization with log loss during
-          training. That is,
+          We use these likelihoods in combination with empirical risk 
+          minimization with log loss to train these models. That is,
           \begin{align}
               \op{CLM}(S) & = - \frac{1}{|S|} \sum_{s=1}^{S} \log p(x_{|s|} \mid x_1, x_2, \ldots, x_{|s|-1}),
           \end{align}
           \begin{align}
               \op{MLM}(S) & = - \frac{1}{|M|} \sum_{s=1}^{S} \sum_{m=1}^{M_s} \log p(x_m \mid x_1, x_2, \ldots, x_{|s|} \setminus M_s),
           \end{align}
-          where $M = \{M_1 \cup M_2 \cup \ldots \cup M_{|S|}\}$ is the set of 
+          where $M = \{M_1 \cup M_2 \cup \ldots \cup M_{|S|}\}$ is the set of
           all masked tokens in $S$.
     \item The main factors are: (i) size, (ii) quality, and (iii) domain.
           \textbf{Size.} The data should be large enough to capture a wide range
@@ -193,8 +193,8 @@ Exercise 7: Large Language Models - Part 1\\
           The addition comes from the LoRA adapter, which is applied using a
           residual connection around the weight matrix we are fine-tuning.
           $\mA$ has $dr$ parameters and $\mB$ has $4dr$ parameters, for a total
-          of $5dr$ for the entire adapter, where $r << d$ is the hyperparameter 
-          that controls the rank of both projection matrices used by LoRA 
+          of $5dr$ for the entire adapter, where $r << d$ is the hyperparameter
+          that controls the rank of both projection matrices used by LoRA
           adapters.
     \item LoRA adapters can be applied to any projection matrix, e.g.\ the
           projections used in self-attention layers. This should be clear from
@@ -248,7 +248,7 @@ Exercise 7: Large Language Models - Part 1\\
           Thus, a language model with $L$ transformer layers uses a single
           positional encoding layer, independently of the number of transformer
           layers in the model.
-          However, some positional encoding layers are added to each transformer 
+          However, some positional encoding layers are added to each transformer
           layer.
     \item The language model head in a transformer-based language model is
           responsible for producing the distribution used for predicting the
