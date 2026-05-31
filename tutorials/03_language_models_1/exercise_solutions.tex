@@ -59,17 +59,17 @@ Exercise 3: Language Models - Part 1 \\
           So using the chain rule, we can compute the probability of a given
           sequence as follows:
           \begin{align*}
-              p(x_n|x_1,\ldots,x_{n-1}) = p(x_1)p(x_2|x_1)p(x_3|x_2)\ldots p(x_n|x_{n-1}).
+              p(x_1,\ldots,x_{n-1},x_n) = p(x_1)p(x_2|x_1)p(x_3|x_2)\ldots p(x_n|x_{n-1}).
           \end{align*}
           Similarly, for trigram models, we have:
           \begin{align*}
-              p(x_n|x_1,\ldots,x_{n-1}) = p(x_1)p(x_2|x_1)p(x_3|x_1,x_2)\ldots p(x_n|x_{n-2},x_{n-1}).
+              p(x_1,\ldots,x_{n-1},x_n) = p(x_1)p(x_2|x_1)p(x_3|x_1,x_2)\ldots p(x_n|x_{n-2},x_{n-1}).
           \end{align*}
           In practice, special tags <s> and </s> are used to mark the beginning
           and end of sentences.
           Thus, a bigram model's prediction would be as follows:
           \begin{align*}
-              p(x_n|x_1,\ldots,x_{n-1}) = p(x_1|\text{<s>})p(x_2|x_1)p(x_3|x_2)\ldots p(x_n|x_{n-1}).
+              p(<s>,x_1,\ldots,x_n,</s>) = p(x_1|\text{<s>})p(x_2|x_1)p(x_3|x_2)\ldots p(x_n|x_{n-1})p(</s>|x_n).
           \end{align*}
           Similarly, if a model predicts </s>, then we know the generated
           sentence is over.
